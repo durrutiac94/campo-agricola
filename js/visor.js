@@ -160,6 +160,21 @@
 
     });
 
+    const ed = window.CampoEditor;
+
+    const conAcciones = !!(ed && ed.puedeEditar && ed.puedeEditar() &&
+      op.editor && op.editor.items && op.editor.items.length === tabla.filas.length);
+
+    if (conAcciones) {
+
+      const thAcc = C.el('th', 'col-acciones');
+
+      thAcc.textContent = 'Acciones';
+
+      trh.appendChild(thAcc);
+
+    }
+
     thead.appendChild(trh);
 
     t.appendChild(thead);
@@ -168,7 +183,7 @@
 
     const tbody = C.el('tbody');
 
-    tabla.filas.forEach((fila) => {
+    tabla.filas.forEach((fila, idx) => {
 
       const tr = C.el('tr');
 
@@ -197,6 +212,20 @@
 
       });
 
+      if (conAcciones) {
+
+        const tdAcc = C.el('td', 'col-acciones');
+
+        tdAcc.dataset.label = 'Acciones';
+
+        const acciones = ed.accionesFila(op.editor.seccion, op.editor.lista, op.editor.items[idx]);
+
+        if (acciones) tdAcc.appendChild(acciones);
+
+        tr.appendChild(tdAcc);
+
+      }
+
       tbody.appendChild(tr);
 
     });
@@ -220,6 +249,8 @@
         trf.appendChild(td);
 
       });
+
+      if (conAcciones) trf.appendChild(C.el('td', 'col-acciones'));
 
       tfoot.appendChild(trf);
 
@@ -345,6 +376,20 @@
 
     acciones.appendChild(aNueva);
 
+    if (opciones.origen && window.CampoEditor && window.CampoEditor.puedeEditar()) {
+
+      const ed = window.CampoEditor.accionesFila(opciones.origen.seccion, opciones.origen.lista, doc);
+
+      if (ed) {
+
+        ed.classList.add('acciones-doc');
+
+        acciones.appendChild(ed);
+
+      }
+
+    }
+
     art.appendChild(acciones);
 
     return art;
@@ -357,7 +402,7 @@
 
     if (!docs || !docs.length) {
 
-      contenedor.appendChild(C.el('div', 'vacio', 'No hay documentos que coincidan con el filtro.'));
+      contenedor.appendChild(C.el('div', 'vacio', 'Todavía no hay documentos cargados.'));
 
       return;
 
@@ -501,6 +546,24 @@
 
     });
 
+    const ed = window.CampoEditor;
+
+    if (ed && ed.puedeEditar() && datos.editorAjustes) {
+
+      const barra = C.el('div', 'barra-editor');
+
+      const b = C.el('button', 'btn pequeno', 'Editar ficha');
+
+      b.type = 'button';
+
+      b.addEventListener('click', () => ed.editarAjustes(datos.editorAjustes));
+
+      barra.appendChild(b);
+
+      contenedor.appendChild(barra);
+
+    }
+
     if (datos.stats && datos.stats.length) {
 
       const sec = C.el('div', 'seccion');
@@ -519,7 +582,17 @@
 
       const ancla = 'tabla-' + (datos.clave || 'sec') + '-' + i;
 
-      sec.appendChild(C.el('h2', '', t.titulo || 'Datos'));
+      const cab = C.el('div', 'cab-seccion');
+
+      cab.appendChild(C.el('h2', '', t.titulo || 'Datos'));
+
+      if (ed && ed.puedeEditar() && t.editor) {
+
+        ed.agregarBoton(t.editor.seccion, t.editor.lista, 'Agregar', cab);
+
+      }
+
+      sec.appendChild(cab);
 
       const cont = C.el('div');
 
@@ -531,7 +604,9 @@
 
         numCols: t.numCols || [],
 
-        etiquetas: t.etiquetas || null
+        etiquetas: t.etiquetas || null,
+
+        editor: t.editor || null
 
       }));
 
@@ -541,19 +616,29 @@
 
     });
 
-    if (datos.documentos && datos.documentos.length) {
+    if ((datos.documentos && datos.documentos.length) || (ed && ed.puedeEditar() && datos.clave)) {
 
       const sec = C.el('div', 'seccion');
 
+      const cab = C.el('div', 'cab-seccion');
+
       const h = C.el('h2', '', 'Documentos');
 
-      h.innerHTML = 'Documentos <span class="contador">' + datos.documentos.length + ' archivos</span>';
+      h.innerHTML = 'Documentos <span class="contador">' + (datos.documentos || []).length + ' archivos</span>';
 
-      sec.appendChild(h);
+      cab.appendChild(h);
+
+      if (ed && ed.puedeEditar()) {
+
+        ed.agregarBoton(datos.clave, 'documentos', 'Agregar documento', cab);
+
+      }
+
+      sec.appendChild(cab);
 
       const cont = C.el('div');
 
-      renderTarjetasDocumentos(cont, datos.documentos);
+      renderTarjetasDocumentos(cont, datos.documentos || [], { origen: { seccion: datos.clave, lista: 'documentos' } });
 
       sec.appendChild(cont);
 

@@ -118,6 +118,7 @@
   }
 
   function avisar() {
+    if (window.CampoBuscador && window.CampoBuscador.invalidar) window.CampoBuscador.invalidar();
     version += 1;
     oyentes.forEach(function (cb) {
       try { cb({ origen: origen, version: version }); } catch (e) { /* continuar */ }
@@ -196,6 +197,7 @@
     listo: listo,
     pintar: function (cb) { listo(cb); alCambiar(function () { cb(); }); },
     alCambiar: alCambiar,
+    notificar: avisar,
     recargar: descargar,
     estado: function () {
       return { origen: origen, ts: cache ? cache.ts : 0, version: version };

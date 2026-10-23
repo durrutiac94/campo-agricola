@@ -49,6 +49,7 @@
     </div>
     <div style="display:flex;gap:.4rem;flex-wrap:wrap;align-items:center">
       <button type="button" class="btn pequeno" id="btn-exp-csv">Exportar CSV</button>
+      <button type="button" class="btn pequeno" id="btn-nuevo-contacto" hidden>Agregar contacto</button>
       <div class="contador-resultados" id="contador-c"></div>
     </div>
   </div>
@@ -65,6 +66,7 @@
           <th>Email</th>
           <th>Dirección</th>
           <th>Notas</th>
+          <th class="col-acciones">Acciones</th>
         </tr>
       </thead>
       <tbody id="tbody-contactos"></tbody>
@@ -86,6 +88,8 @@
 <script src="js/manifiesto.js"></script>
 <script src="js/datos.js"></script>
 <script src="js/app.js"></script>
+<script src="js/esquema.js"></script>
+<script src="js/editor.js"></script>
 <script src="js/exportar.js"></script>
 <script src="js/buscador.js"></script>
 <script>
@@ -99,6 +103,7 @@
   var inp = document.getElementById('filtro-buscar-c');
   var cnt = document.getElementById('contador-c');
   var btn = document.getElementById('btn-exp-csv');
+  var btnNuevo = document.getElementById('btn-nuevo-contacto');
 
   function pintar() {
     datos = window.DATOS_CONTACTOS || [];
@@ -110,6 +115,8 @@
       return okCat && okQ;
     });
     if (cnt) cnt.textContent = lista.length + ' contacto' + (lista.length === 1 ? '' : 's');
+    var ed = window.CampoEditor;
+    if (btnNuevo) btnNuevo.hidden = !(ed && ed.puedeEditar());
     if (!tbody) return;
     tbody.innerHTML = '';
     lista.forEach(function (d) {
@@ -123,6 +130,14 @@
         '<td data-label="Email"><a href="mailto:' + C.esc(d.email||'') + '">' + C.esc(d.email||'') + '</a></td>' +
         '<td data-label="Dirección">' + C.esc(d.direccion||'') + '</td>' +
         '<td data-label="Notas">' + C.esc(d.notas||'') + '</td>';
+      if (ed && ed.puedeEditar()) {
+        var tdAcc = document.createElement('td');
+        tdAcc.className = 'col-acciones';
+        tdAcc.dataset.label = 'Acciones';
+        var acc = ed.accionesFila('contactos', 'contactos', d);
+        if (acc) tdAcc.appendChild(acc);
+        tr.appendChild(tdAcc);
+      }
       tbody.appendChild(tr);
     });
   }
@@ -153,6 +168,12 @@
         a.download = 'contactos-campo.csv';
         a.click();
       }
+    });
+  }
+
+  if (btnNuevo) {
+    btnNuevo.addEventListener('click', function () {
+      if (window.CampoEditor) window.CampoEditor.abrirFormulario('contactos', 'contactos');
     });
   }
 

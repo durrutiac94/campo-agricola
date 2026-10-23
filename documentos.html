@@ -51,7 +51,10 @@
         <input type="search" id="filtro-buscar-doc" placeholder="título, descripción o etiqueta..." autocomplete="off">
       </label>
     </div>
-    <div class="contador-resultados" id="contador-docs"></div>
+    <div style="display:flex;gap:.4rem;flex-wrap:wrap;align-items:center">
+      <button type="button" class="btn pequeno" id="btn-nuevo-doc" hidden>Agregar documento</button>
+      <div class="contador-resultados" id="contador-docs"></div>
+    </div>
   </div>
 
   <div id="documentos-lista"></div>
@@ -72,6 +75,8 @@
 <script src="js/manifiesto.js"></script>
 <script src="js/datos.js"></script>
 <script src="js/app.js"></script>
+<script src="js/esquema.js"></script>
+<script src="js/editor.js"></script>
 <script src="js/visor.js"></script>
 <script src="js/buscador.js"></script>
 <script>
@@ -83,6 +88,7 @@
   var sel = document.getElementById('filtro-seccion');
   var inp = document.getElementById('filtro-buscar-doc');
   var cnt = document.getElementById('contador-docs');
+  var btnNuevo = document.getElementById('btn-nuevo-doc');
   var docs = [];
 
   function filtrar() {
@@ -95,12 +101,20 @@
       return okSec && okQ;
     });
     if (cnt) cnt.textContent = lista.length + ' documento' + (lista.length === 1 ? '' : 's');
-    if (V && V.renderTarjetasDocumentos) V.renderTarjetasDocumentos(cont, lista, { mostrarSeccion: true });
+    if (btnNuevo) btnNuevo.hidden = !(window.CampoEditor && window.CampoEditor.puedeEditar());
+    if (V && V.renderTarjetasDocumentos) V.renderTarjetasDocumentos(cont, lista, { mostrarSeccion: true, origen: { seccion: 'documentos', lista: 'documentos' } });
   }
 
   if (sel) sel.addEventListener('change', filtrar);
   if (inp) inp.addEventListener('input', filtrar);
-  if (document.readyState === 'loading') {
+  if (btnNuevo) {
+    btnNuevo.addEventListener('click', function () {
+      if (window.CampoEditor) window.CampoEditor.abrirFormulario('documentos', 'documentos');
+    });
+  }
+  if (window.CampoDatos) {
+    window.CampoDatos.pintar(filtrar);
+  } else if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', filtrar);
   } else {
     filtrar();

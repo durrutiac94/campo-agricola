@@ -79,6 +79,8 @@
 <script src="js/manifiesto.js"></script>
 <script src="js/datos.js"></script>
 <script src="js/app.js"></script>
+<script src="js/esquema.js"></script>
+<script src="js/editor.js"></script>
 <script>
 (function () {
   'use strict';
@@ -129,6 +131,28 @@
         });
         tabla.appendChild(t);
         hitosCont.appendChild(tabla);
+      }
+    }
+    if (window.CampoEditor) {
+      var cab = document.querySelector('.pagina-cabecera');
+      var vieja = document.getElementById('barra-editor-portada');
+      if (vieja) vieja.remove();
+      if (cab && window.CampoEditor.puedeEditar()) {
+        var barra = document.createElement('div');
+        barra.id = 'barra-editor-portada';
+        barra.className = 'barra-editor';
+        [['Editar portada', function () { window.CampoEditor.editarAjustes('campo'); }],
+         ['Indicadores', function () { window.CampoEditor.administrarLista('campo', 'kpis', 'Indicadores de portada'); }],
+         ['Hitos', function () { window.CampoEditor.administrarLista('campo', 'hitos', 'Hitos del año'); }]
+        ].forEach(function (par) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'btn secundario pequeno';
+          b.textContent = par[0];
+          b.addEventListener('click', par[1]);
+          barra.appendChild(b);
+        });
+        cab.appendChild(barra);
       }
     }
   }

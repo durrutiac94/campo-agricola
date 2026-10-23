@@ -26,13 +26,34 @@
     const grupo = document.createElement('div');
     grupo.className = 'filtros-grupo';
     const selCat = document.createElement('select');
-    selCat.innerHTML = '<option value="todos">Todas las categorias</option>' + categorias.map(function(c){ return '<option value="'+c.id+'">'+c.nombre+'</option>'; }).join('');
+    selCat.innerHTML = '<option value="todos">Todas las categorías</option>' + categorias.map(function (c) { return '<option value="' + c.id + '">' + c.nombre + '</option>'; }).join('');
     const labCat = document.createElement('label');
-    labCat.innerHTML = '<span>Categoria</span>';
+    labCat.innerHTML = '<span>Categoría</span>';
     labCat.appendChild(selCat);
     grupo.appendChild(labCat);
     filtros.appendChild(grupo);
     cont.appendChild(filtros);
+
+    if (window.CampoEditor && window.CampoEditor.puedeEditar()) {
+      const barra = document.createElement('div');
+      barra.className = 'barra-editor';
+      window.CampoEditor.agregarBoton('calendario', 'eventos', 'Agregar evento', barra);
+      const bCat = document.createElement('button');
+      bCat.type = 'button';
+      bCat.className = 'btn secundario pequeno';
+      bCat.textContent = 'Categorías';
+      bCat.addEventListener('click', function () {
+        window.CampoEditor.administrarLista('calendario', 'categorias', 'Categorías del calendario');
+      });
+      barra.appendChild(bCat);
+      const bAnio = document.createElement('button');
+      bAnio.type = 'button';
+      bAnio.className = 'btn secundario pequeno';
+      bAnio.textContent = 'Editar año';
+      bAnio.addEventListener('click', function () { window.CampoEditor.editarAjustes('calendario'); });
+      barra.appendChild(bAnio);
+      cont.appendChild(barra);
+    }
 
     const envoltura = document.createElement('div');
     envoltura.className = 'calendario-calendario';
@@ -56,6 +77,10 @@
           item.className = 'evento';
           const cat = categorias.find(function(c){ return c.id === ev.categoria; });
           item.innerHTML = '<div class="cab-evento"><span class="fecha">' + ev.fecha + '</span>' + (cat ? '<span class="chip" style="background:'+cat.color+'22;color:'+cat.color+'">'+cat.nombre+'</span>' : '') + '</div><h4>' + (window.Campo ? window.Campo.esc(ev.titulo) : ev.titulo) + '</h4><p>' + (window.Campo ? window.Campo.esc(ev.descripcion||'') : ev.descripcion||'') + '</p>' + (ev.responsable ? '<div class="meta">Responsable: ' + (window.Campo ? window.Campo.esc(ev.responsable) : ev.responsable) + '</div>' : '');
+          if (window.CampoEditor && window.CampoEditor.puedeEditar()) {
+            const acciones = window.CampoEditor.accionesFila('calendario', 'eventos', ev);
+            if (acciones) item.appendChild(acciones);
+          }
           lista.appendChild(item);
         });
         panel.appendChild(lista);

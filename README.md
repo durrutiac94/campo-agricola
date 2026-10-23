@@ -7,8 +7,9 @@ Sitio estático de gestión del campo (avellanos, ovinos, riego, maquinaria).
 ## Características
 
 - HTML/CSS/JS puro, sin build
-- Datos en `data/*.js` como `window.*`
-- Funciona en `file://` (sin `fetch`)
+- Contenido en Supabase (lectura pública) con copia local en el dispositivo
+- `data/*.js` queda como respaldo cuando no hay conexión ni caché
+- Edición en el sitio con cuenta: crear, modificar y borrar registros y fichas
 - PWA con Service Worker (lectura sin conexión)
 - Buscador global (Ctrl+K / `/`)
 - Calculadoras agrícolas
@@ -17,7 +18,7 @@ Sitio estático de gestión del campo (avellanos, ovinos, riego, maquinaria).
 ## Estructura
 
 - Páginas: `index.html`, `avellanos.html`, `ovejas.html`, `riego.html`, `maquinaria.html`, `mapa.html`, `calendario.html`, `bitacora.html`, `calculadoras.html`, `documentos.html`, `contacto.html`
-- Carpetas: `css/`, `js/`, `data/`, `pdfs/`, `assets/`
+- Carpetas: `css/`, `js/`, `data/`, `pdfs/`, `assets/`, `supabase/`
 - `sw.js` + `manifest.webmanifest` para la PWA
 - `sitemap.xml` y `robots.txt` para buscadores
 
@@ -37,13 +38,23 @@ GitHub Pages desde la raíz del repositorio, rama `main`:
 2. `git push origin main`.
 3. Pages reconstruye solo (Settings → Pages → `main` / `(root)`).
 
+## Edición
+
+1. Pulsar **Entrar** en la barra superior e ingresar con la cuenta del campo.
+2. Con la sesión iniciada aparecen los botones **Editar**, **Borrar** y **+ Agregar** en cada lista, y **Editar ficha** en cada sección.
+3. Los cambios se guardan en Supabase y se ven en todos los dispositivos al recargar.
+4. **Salir** oculta los controles de edición (el sitio sigue siendo de lectura pública).
+
+Las cuentas se crean desde el panel de Supabase (Authentication → Users). No hay registro público.
+
 ## Estado
 
 - Contenido en Supabase: lectura pública y edición con cuenta (RLS configurado en `supabase/esquema.sql`).
 - Los datos se muestran desde la copia local del dispositivo y luego se refrescan desde la nube.
-- PDFs todavía no cargados: los enlaces de `documentos.html` se activarán en la fase de subida.
+- Editor disponible en todas las secciones, el calendario, las bitácoras, los contactos y los documentos.
+- PDFs todavía no cargados: los enlaces de `documentos.html` se activarán en la fase de subida desde el sitio.
 - La sección Mapa queda congelada hasta decidir si se mantiene.
-- Próxima etapa: editor en el sitio para las personas con cuenta.
+- Pendientes: subida de PDF, cola de cambios sin conexión y aviso de sesión vencida.
 
 ## Etiquetas
 

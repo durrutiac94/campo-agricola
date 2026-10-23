@@ -369,6 +369,7 @@
     activarDesplegables();
     activarModoCampo();
     activarImpresion();
+    if (window.CampoEditor) window.CampoEditor.montarSesion();
     if (window.CampoBuscador) window.CampoBuscador.iniciar();
   }
 
@@ -380,6 +381,7 @@
     activarModoCampo();
     activarImpresion();
     activarServiceWorker();
+    if (window.CampoEditor) window.CampoEditor.montarSesion();
     if (window.CampoBuscador) window.CampoBuscador.iniciar();
     if (window.CampoDatos) window.CampoDatos.alCambiar(repintar);
   }
