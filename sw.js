@@ -16,7 +16,7 @@
 
  */
 
-const VERSION = 'v1';
+const VERSION = 'v2';
 
 const CACHE_SHELL = `campo-shell-${VERSION}`;
 
@@ -57,6 +57,10 @@ const SHELL = [
   './css/campo.css',
 
   './js/app.js',
+
+  './js/config.js',
+
+  './js/supabase.js',
 
   './js/exportar.js',
 
