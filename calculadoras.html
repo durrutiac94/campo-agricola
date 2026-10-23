@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calculadoras del campo | Campo El Avellano</title>
+<meta name="description" content="Calculadoras de riego y balance hídrico, costo por kilogramo, planificación de cosecha y carga animal para el campo avellano-ganadero.">
+<meta name="theme-color" content="#1f4d3a">
+<link rel="canonical" href="https://durrutiac94.github.io/campo-agricola/calculadoras.html">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/campo.css">
+</head>
+<body data-pagina="calculadoras.html">
+
+<div id="barra-header"></div>
+
+<main class="contenedor">
+  <nav class="migas" aria-label="Ruta de navegación">
+    <a href="index.html">Inicio</a> <span>/</span> <span>Calculadoras</span>
+  </nav>
+
+  <header class="pagina-cabecera">
+    <h1>Calculadoras</h1>
+    <p class="intro">
+      Cuatro herramientas para decidir con números en vez de con intuición: cuánta agua
+      falta, cuánto cuesta producir un kilo, cuánta gente y cuántos días exige la cosecha,
+      y si el rebaño cabe en el forraje disponible. Todos los valores se pueden modificar
+      para que calcen con la realidad de tu campo.
+    </p>
+  </header>
+
+  <div class="aviso info">
+    <strong>Los cálculos usan los datos cargados en <code>data/</code>.</strong><br>
+    Cambia allí la superficie, el rendimiento, los costos y el caudal del pozo, y las
+    cuatro calculadoras se recalculan con esos valores al abrir la página.
+  </div>
+
+  <div id="calculadoras"></div>
+
+  <noscript>
+    <div class="aviso aviso">
+      Las calculadoras necesitan JavaScript activado. Sin él solo se ven los
+      valores de referencia que hay en cada página del sitio.
+    </div>
+  </noscript>
+</main>
+
+<div id="pie-footer"></div>
+
+<script src="data/campo.js"></script>
+<script src="data/riego.js"></script>
+<script src="js/app.js"></script>
+<script src="js/calculo.js"></script>
+</body>
+</html>

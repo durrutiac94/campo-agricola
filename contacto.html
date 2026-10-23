@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contactos | Campo El Avellano</title>
+<meta name="description" content="Libreta de contactos del campo: proveedores, veterinarios, transporte, compradores, asesoría y servicios.">
+<meta name="theme-color" content="#1f4d3a">
+<link rel="canonical" href="https://durrutiac94.github.io/campo-agricola/contacto.html">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/campo.css">
+</head>
+<body data-pagina="contacto.html">
+
+<div id="barra-header"></div>
+
+<main class="contenedor">
+  <nav class="migas" aria-label="Ruta de navegación">
+    <a href="index.html">Inicio</a> <span>/</span> <span>Contactos</span>
+  </nav>
+
+  <header class="pagina-cabecera">
+    <h1>Contactos</h1>
+    <p class="intro">
+      Libreta de contactos organizada por categoría. Se puede filtrar, ordenar y exportar
+      a CSV para usarlo en Excel.
+    </p>
+  </header>
+
+  <div class="filtros-documentos">
+    <div class="filtros-grupo">
+      <label>
+        <span>Categoría</span>
+        <select id="filtro-cat">
+          <option value="todos">Todas</option>
+          <option value="Proveedores">Proveedores</option>
+          <option value="Veterinarios">Veterinarios</option>
+          <option value="Transporte">Transporte</option>
+          <option value="Compradores">Compradores</option>
+          <option value="Asesoría">Asesoría</option>
+          <option value="Servicios">Servicios</option>
+        </select>
+      </label>
+      <label>
+        <span>Buscar</span>
+        <input type="search" id="filtro-buscar-c" placeholder="empresa, nombre, especialidad..." autocomplete="off">
+      </label>
+    </div>
+    <div style="display:flex;gap:.4rem;flex-wrap:wrap;align-items:center">
+      <button type="button" class="btn pequeno" id="btn-exp-csv">Exportar CSV</button>
+      <div class="contador-resultados" id="contador-c"></div>
+    </div>
+  </div>
+
+  <div class="tabla-envoltura">
+    <table class="tabla responsive" id="tabla-contactos">
+      <thead>
+        <tr>
+          <th class="ordenable" data-col="categoria">Categoría <span class="flecha-orden">→</span></th>
+          <th class="ordenable" data-col="empresa">Empresa <span class="flecha-orden">→</span></th>
+          <th class="ordenable" data-col="nombre">Nombre <span class="flecha-orden">→</span></th>
+          <th class="ordenable" data-col="especialidad">Especialidad <span class="flecha-orden">→</span></th>
+          <th>Teléfono</th>
+          <th>Email</th>
+          <th>Dirección</th>
+          <th>Notas</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-contactos"></tbody>
+    </table>
+  </div>
+
+  <noscript>
+    <div class="aviso info">
+      Los contactos se cargan desde <code>data/contactos.js</code>.
+    </div>
+  </noscript>
+</main>
+
+<div id="pie-footer"></div>
+
+<script src="data/contactos.js"></script>
+<script src="js/app.js"></script>
+<script src="js/exportar.js"></script>
+<script src="js/buscador.js"></script>
+<script>
+(function () {
+  'use strict';
+  var C = window.Campo;
+  var E = window.CampoExportar;
+  var datos = window.DATOS_CONTACTOS || [];
+  var tbody = document.getElementById('tbody-contactos');
+  var sel = document.getElementById('filtro-cat');
+  var inp = document.getElementById('filtro-buscar-c');
+  var cnt = document.getElementById('contador-c');
+  var btn = document.getElementById('btn-exp-csv');
+
+  function pintar() {
+    var cat = sel ? sel.value : 'todos';
+    var q = inp ? C.norm(inp.value) : '';
+    var lista = datos.filter(function (d) {
+      var okCat = (cat === 'todos') || (d.categoria === cat);
+      var okQ = !q || C.norm([d.empresa, d.nombre, d.especialidad, d.notas].join(' ')).indexOf(q) !== -1;
+      return okCat && okQ;
+    });
+    if (cnt) cnt.textContent = lista.length + ' contacto' + (lista.length === 1 ? '' : 's');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    lista.forEach(function (d) {
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td data-label="Categoría">' + C.esc(d.categoria) + '</td>' +
+        '<td data-label="Empresa"><strong>' + C.esc(d.empresa) + '</strong></td>' +
+        '<td data-label="Nombre">' + C.esc(d.nombre || '') + '</td>' +
+        '<td data-label="Especialidad">' + C.esc(d.especialidad || '') + '</td>' +
+        '<td data-label="Teléfono"><a href="tel:' + C.esc((d.telefono||'').replace(/\s/g,'')) + '">' + C.esc(d.telefono||'') + '</a></td>' +
+        '<td data-label="Email"><a href="mailto:' + C.esc(d.email||'') + '">' + C.esc(d.email||'') + '</a></td>' +
+        '<td data-label="Dirección">' + C.esc(d.direccion||'') + '</td>' +
+        '<td data-label="Notas">' + C.esc(d.notas||'') + '</td>';
+      tbody.appendChild(tr);
+    });
+  }
+
+  if (sel) sel.addEventListener('change', pintar);
+  if (inp) inp.addEventListener('input', pintar);
+  if (btn && E) {
+    btn.addEventListener('click', function () {
+      var cat = sel ? sel.value : 'todos';
+      var q = inp ? C.norm(inp.value) : '';
+      var lista = datos.filter(function (d) {
+        var okCat = (cat === 'todos') || (d.categoria === cat);
+        var okQ = !q || C.norm([d.empresa, d.nombre, d.especialidad, d.notas].join(' ')).indexOf(q) !== -1;
+        return okCat && okQ;
+      });
+      var cols = ['categoria','empresa','nombre','especialidad','telefono','email','direccion','notas'];
+      var filas = lista.map(function (d) {
+        return cols.map(function (c) { return d[c] || ''; });
+      });
+      if (E.descargarTabla) E.descargarTabla('contactos-campo.csv', ['Categoría','Empresa','Nombre','Especialidad','Teléfono','Email','Dirección','Notas'], filas);
+      else if (E.descargarCSV) {
+        var csv = E.escapar(['Categoría','Empresa','Nombre','Especialidad','Teléfono','Email','Dirección','Notas'].join(';')) + '\n' +
+          filas.map(function (f) { return f.map(function (v) { return E.escapar ? E.escapar(String(v)) : String(v).replace(/;/g,','); }).join(';'); }).join('\n');
+        var blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'contactos-campo.csv';
+        a.click();
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', pintar);
+  } else {
+    pintar();
+  }
+})();
+</script>
+</body>
+</html>

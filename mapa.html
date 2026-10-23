@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mapa del campo | Campo El Avellano</title>
+<meta name="description" content="Plano del campo: cuatro sectores de avellanos, potrero, caminos, galpón, bodega, corral, tranque y pozo profundo.">
+<meta name="theme-color" content="#1f4d3a">
+<link rel="canonical" href="https://durrutiac94.github.io/campo-agricola/mapa.html">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/campo.css">
+</head>
+<body data-pagina="mapa.html">
+
+<div id="barra-header"></div>
+
+<main class="contenedor">
+  <nav class="migas" aria-label="Ruta de navegación">
+    <a href="index.html">Inicio</a> <span>/</span> <span>Mapa del campo</span>
+  </nav>
+
+  <header class="pagina-cabecera">
+    <h1>Mapa del campo</h1>
+    <p class="intro" id="intro-mapa">
+      Distribución de las 20 hectáreas: 16 ha de avellanos en cuatro sectores,
+      4 ha de potrero, caminos, galpón, bodega, corral, tranque y pozo profundo.
+    </p>
+  </header>
+
+  <div class="grilla-2">
+    <section class="seccion">
+      <h2>Plano general</h2>
+      <div class="mapa-contenedor" id="mapa"></div>
+      <div class="leyenda-mapa" id="leyenda-mapa"></div>
+    </section>
+
+    <aside class="seccion">
+      <h2>Detalle</h2>
+      <div id="detalle-mapa"></div>
+    </aside>
+  </div>
+
+  <section class="seccion">
+    <h2>Leyenda y superficies</h2>
+    <div class="tabla-envoltura">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Elemento</th>
+            <th>Superficie</th>
+            <th>Uso</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-mapa"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="seccion">
+    <h2>También te puede servir</h2>
+    <div class="doc-grid">
+      <article class="doc-card">
+        <div class="tipo"><span class="ext">AVL</span> Avellanos</div>
+        <h3><a href="avellanos.html">Avellanos</a></h3>
+        <p class="desc">Variedades y superficie plantada por sector.</p>
+      </article>
+      <article class="doc-card">
+        <div class="tipo"><span class="ext">RIE</span> Agua</div>
+        <h3><a href="riego.html">Riego</a></h3>
+        <p class="desc">Pozo, tranque y programación por sector.</p>
+      </article>
+      <article class="doc-card">
+        <div class="tipo"><span class="ext">OVI</span> Rebaño</div>
+        <h3><a href="ovejas.html">Ovejas</a></h3>
+        <p class="desc">Potrero, corral y plan de pastoreo.</p>
+      </article>
+      <article class="doc-card">
+        <div class="tipo"><span class="ext">HER</span> Herramientas</div>
+        <h3><a href="calculadoras.html">Calculadoras</a></h3>
+        <p class="desc">Cálculos de riego, cosecha y carga animal.</p>
+      </article>
+    </div>
+  </section>
+
+  <noscript>
+    <div class="aviso info">
+      El mapa se genera con <code>data/mapa.js</code> y <code>js/mapa.js</code>.
+      Con JavaScript activado se dibuja el plano interactivo.
+    </div>
+  </noscript>
+</main>
+
+<div id="pie-footer"></div>
+
+<script src="data/mapa.js"></script>
+<script src="js/app.js"></script>
+<script src="js/mapa.js"></script>
+<script src="js/buscador.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  function pintar() {
+    var d = window.DATOS_MAPA;
+    if (!d) return;
+
+    var intro = document.getElementById('intro-mapa');
+    if (intro && d.descripcion) intro.textContent = d.descripcion;
+
+    window.CampoMapa.render(document.getElementById('mapa'));
+    window.CampoMapa.renderLeyenda(document.getElementById('leyenda-mapa'));
+
+    var cuerpo = document.getElementById('tabla-mapa');
+    if (!cuerpo) return;
+
+    cuerpo.innerHTML = '';
+
+    d.elementos.forEach(function (item) {
+      if (item.tipo === 'texto') return;
+      var fila = document.createElement('tr');
+      [item.etiqueta, item.superficie || '-', item.uso || item.cultivo || '-', item.estado || '-']
+        .forEach(function (valor, i) {
+          var td = document.createElement('td');
+          td.textContent = valor;
+          if (i === 1) td.className = 'num';
+          fila.appendChild(td);
+        });
+      cuerpo.appendChild(fila);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', pintar);
+  } else {
+    pintar();
+  }
+})();
+</script>
+</body>
+</html>

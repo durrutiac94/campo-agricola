@@ -1,0 +1,93 @@
+/* ==========================================================================
+   Modo campo → hoja alternativa para uso en terreno.
+   Se activa con el botón "Modo campo" de la barra superior, que alterna la
+   clase .modo-campo en <html>. Tipografía grande, alto contraste y menos
+   ruido visual para leer con guantes o a pleno sol.
+   ========================================================================== */
+
+html.modo-campo {
+  --texto: #000;
+  --texto-soft: #16211a;
+  --texto-mute: #35443a;
+  --linea: #1f2a21;
+  --linea-soft: #b9c4b7;
+  --fondo: #ffffff;
+  --superficie: #ffffff;
+  --superficie-alt: #f2f4f0;
+  --verde-050: #eef5ea;
+  --verde-100: #d7e8cf;
+  --verde-200: #b3d2a5;
+  --verde-900: #14301d;
+  --verde-700: #1f5230;
+  font-size: 18px;
+}
+
+html.modo-campo body {
+  background: #fff;
+  font-weight: 500;
+  line-height: 1.7;
+}
+
+html.modo-campo .contenedor { max-width: 100%; padding: 0 1rem; }
+
+html.modo-campo .site-header {
+  background: #14301d;
+  box-shadow: 0 3px 0 #000;
+}
+html.modo-campo .marca { font-size: 1.15rem; }
+html.modo-campo .nav-lista a,
+html.modo-campo .nav-grupo > button { font-size: 1.02rem; padding: .6rem .8rem; }
+html.modo-campo .btn-icono { width: 42px; height: 40px; font-size: 1.1rem; }
+
+html.modo-campo h1 { font-size: 2rem; }
+html.modo-campo h2 { font-size: 1.5rem; }
+html.modo-campo h3 { font-size: 1.18rem; }
+
+html.modo-campo .tarjeta,
+html.modo-campo .kpi,
+html.modo-campo .tabla-envoltura,
+html.modo-campo .panel-mes,
+html.modo-campo .cal-envoltura,
+html.modo-campo .mapa-contenedor {
+  border: 2px solid var(--linea);
+  box-shadow: none;
+}
+
+html.modo-campo table.tabla { font-size: 1rem; }
+html.modo-campo table.tabla th,
+html.modo-campo table.tabla td { padding: .7rem .7rem; border-bottom: 2px solid var(--linea-soft); }
+html.modo-campo table.tabla thead th {
+  background: #14301d; color: #fff; font-size: .88rem; border-bottom: 3px solid #000;
+}
+
+html.modo-campo .btn {
+  padding: .7rem 1.1rem; font-size: 1rem; border-width: 2px;
+  background: #14301d; border-color: #14301d; color: #fff;
+}
+html.modo-campo .btn.secundario { background: #fff; color: #14301d; border-color: #14301d; }
+html.modo-campo .btn.secundario:hover { background: #eef5ea; color: #14301d; }
+
+html.modo-campo input,
+html.modo-campo select,
+html.modo-campo textarea {
+  padding: .65rem .7rem; font-size: 1rem; border-width: 2px; border-color: var(--linea);
+}
+
+html.modo-campo .etiqueta { font-size: .86rem; padding: .2rem .6rem; }
+html.modo-campo .chip { font-size: .95rem; padding: .45rem .9rem; }
+html.modo-campo .chip.activo { background: #14301d; border-color: #14301d; }
+
+html.modo-campo .kpi .valor { font-size: 1.9rem; }
+html.modo-campo .resultado .linea { font-size: 1.02rem; padding: .45rem 0; }
+html.modo-campo .resultado .linea .v { font-size: 1.12rem; }
+
+html.modo-campo .doc-card .desc,
+html.modo-campo .parrafo-intro { font-size: 1rem; }
+
+/* En modo campo las tablas apiladas se leen mejor sin truncar */
+html.modo-campo table.tabla.responsive td { grid-template-columns: 42% 1fr; padding: .5rem .6rem; }
+
+/* Modo campo: las secciones de una página se muestran a pantalla completa
+   al navegar entre ellas, sin distracciones del encabezado. */
+html.modo-campo main { padding-top: 1rem; }
+html.modo-campo .hero { padding: 1.4rem 0 1.2rem; }

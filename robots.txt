@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /campo-agricola/pdfs/
+
+Sitemap: https://durrutiac94.github.io/campo-agricola/sitemap.xml
