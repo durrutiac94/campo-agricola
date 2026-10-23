@@ -1,7 +1,7 @@
 /* ==========================================================================
    app.js - base común del sitio.
-   Genera la barra de navegación y el pie, maneja el menú móvil, el modo
-   campo, la impresion y el registro del service worker.
+   Genera la barra de navegación, maneja el menú móvil, el modo
+   campo, la impresión y el registro del service worker.
    Debe cargarse antes que el resto de los modulos.
    ========================================================================== */
 
@@ -112,37 +112,7 @@
     { href: 'contacto.html', label: 'Contactos' }
   ];
 
-  const ENLACES_FOOTER = [
-    {
-      titulo: 'El campo',
-      items: [
-        { href: 'avellanos.html', label: 'Avellanos' },
-        { href: 'ovejas.html', label: 'Ovejas' },
-        { href: 'riego.html', label: 'Riego' },
-        { href: 'maquinaria.html', label: 'Maquinaria' },
-        { href: 'mapa.html', label: 'Mapa del campo' }
-      ]
-    },
-    {
-      titulo: 'Herramientas',
-      items: [
-        { href: 'calendario.html', label: 'Calendario anual' },
-        { href: 'calculadoras.html', label: 'Calculadoras' },
-        { href: 'bitacora.html', label: 'Bitácoras' },
-        { href: 'documentos.html', label: 'Documentos' }
-      ]
-    },
-    {
-      titulo: 'Sitio',
-      items: [
-        { href: 'index.html', label: 'Inicio' },
-        { href: 'contacto.html', label: 'Contactos' },
-        { href: 'sitemap.xml', label: 'Mapa del sitio' }
-      ]
-    }
-  ];
-
-  const NOMBRE_POR_DEFECTO = 'Campo Agrícola';
+  const NOMBRE_POR_DEFECTO = 'Campo El Avellano';
 
   /* ---------------------------------------------------------- Render header */
 
@@ -165,11 +135,11 @@
         return `<li><a href="${sub.href}"${activo}>${Campo.esc(sub.label)}</a></li>`;
       }).join('');
 
-      const abierto = item.items.some((s) => s.href === pagina) ? ' abierto' : '';
+      const grupoActivo = item.items.some((s) => s.href === pagina) ? ' activo' : '';
 
       return `
-        <li class="nav-grupo${abierto}">
-          <button type="button" aria-haspopup="true" aria-expanded="${abierto ? 'true' : 'false'}">
+        <li class="nav-grupo">
+          <button type="button" class="${grupoActivo.trim()}" aria-haspopup="true" aria-expanded="false">
             ${Campo.esc(item.grupo)} <span class="flecha">${ICONO.flecha}</span>
           </button>
           <ul class="nav-submenu">${hijos}</ul>
@@ -188,7 +158,8 @@
 
       <div class="acciones-header">
         <div class="buscador-global">
-          <input type="search" id="busqueda-global" placeholder="Buscar en el sitio (Ctrl+K)"
+          <input type="search" id="busqueda-global" placeholder="Buscar…"
+                 title="Buscar en el sitio (Ctrl+K)"
                  aria-label="Buscar en el sitio" autocomplete="off">
           <div class="resultados-busqueda" id="resultados-busqueda" role="listbox"></div>
         </div>
@@ -203,49 +174,6 @@
         <button type="button" class="btn-icono btn-menu" id="btn-menu"
                 aria-label="Abrir menú" aria-expanded="false">${ICONO.menu}</button>
       </div>`;
-  }
-
-  function pintarFooter() {
-    const cont = document.getElementById('pie-footer');
-    if (!cont) return;
-
-    const datos = window.DATOS_CAMPO || {};
-    const nombre = datos.nombre || NOMBRE_POR_DEFECTO;
-
-    const cols = ENLACES_FOOTER.map((col) => `
-      <div>
-        <h4>${Campo.esc(col.titulo)}</h4>
-        <ul>${col.items.map((i) => `<li><a href="${i.href}">${Campo.esc(i.label)}</a></li>`).join('')}</ul>
-      </div>`).join('');
-
-    const contacto = [];
-    if (datos.comuna || datos.region) {
-      contacto.push(`<li>${Campo.esc([datos.comuna, datos.region].filter(Boolean).join(', '))}</li>`);
-    }
-    if (datos.telefono) {
-      contacto.push(`<li><a href="tel:${Campo.esc(datos.telefono.replace(/\s/g, ''))}">${Campo.esc(datos.telefono)}</a></li>`);
-    }
-    if (datos.email) {
-      contacto.push(`<li><a href="mailto:${Campo.esc(datos.email)}">${Campo.esc(datos.email)}</a></li>`);
-    }
-
-    cont.innerHTML = `
-      <div class="cols">
-        ${cols}
-        <div>
-          <h4>${Campo.esc(nombre)}</h4>
-          ${contacto.length ? `<ul>${contacto.join('')}</ul>` : '<ul><li>Datos de contacto por definir</li></ul>'}
-          ${datos.superficieTotal ? `<ul><li>${Campo.num(datos.superficieTotal, 0)} ha en total</li></ul>` : ''}
-        </div>
-      </div>
-
-      <div class="legal">
-        <span>&copy; <span id="anio">2026</span> ${Campo.esc(nombre)}. Sitio de uso interno.</span>
-        <span>Publicado con GitHub Pages &middot; Documentos en PDF con visor integrado</span>
-      </div>`;
-
-    const anio = document.getElementById('anio');
-    if (anio) anio.textContent = String(new Date().getFullYear());
   }
 
   /* -------------------------------------------------------- Comportamiento */
@@ -364,7 +292,6 @@
 
   function repintar() {
     pintarHeader();
-    pintarFooter();
     activarMenuMovil();
     activarDesplegables();
     activarModoCampo();
@@ -375,7 +302,6 @@
 
   function iniciar() {
     pintarHeader();
-    pintarFooter();
     activarMenuMovil();
     activarDesplegables();
     activarModoCampo();

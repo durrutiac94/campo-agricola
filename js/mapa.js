@@ -115,7 +115,7 @@
       if (item.tipo === 'texto') {
         const texto = el('text', {
           x: item.x, y: item.y,
-          class: 'texto-mapa',
+          class: item.id === 'norte' ? 'texto-mapa norte' : 'texto-mapa',
           'text-anchor': 'middle',
           'font-weight': '700'
         });
