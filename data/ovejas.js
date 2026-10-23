@@ -136,33 +136,7 @@ window.DATOS_OVEJAS = {
 
   ],
 
-  documentos: [
-
-    { titulo: 'Plan sanitario anual del rebaño', archivo: 'pdfs/ovejas/plan-sanitario.pdf',
-
-      descripcion: 'Calendario de vacunación, desparasitación y stocking con fechas y productos.',
-
-      fecha: '2026-02-01', seccion: 'Ovejas', tags: ['sanidad', 'plan'] },
-
-    { titulo: 'Registro de parideras', archivo: 'pdfs/ovejas/registro-parideras.pdf',
-
-      descripcion: 'Parto por parto, peso al nacimiento, supervivencia y causa de pérdida.',
-
-      fecha: '2025-10-15', seccion: 'Ovejas', tags: ['parideras'] },
-
-    { titulo: 'Ficha de pastoreo y balance forrajero', archivo: 'pdfs/ovejas/ficha-pastoreo.pdf',
-
-      descripcion: 'Carga animal, consumo estimado y calendario de suplementación del rebaño.',
-
-      fecha: '2026-01-05', seccion: 'Ovejas', tags: ['pastoreo'] },
-
-    { titulo: 'Guía de manejo en sistema de pastoreo', archivo: 'pdfs/ovejas/guia-pastoreo.pdf',
-
-      descripcion: 'Rotación de potreros, agua, sombra y manejo del pastoreo bajo avellanos.',
-
-      fecha: '2025-09-12', seccion: 'Ovejas', tags: ['guía'] }
-
-  ]
+  documentos: []
 
 };
 

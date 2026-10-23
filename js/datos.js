@@ -17,7 +17,9 @@
   var version = 0;
   var oyentes = [];
   var listos = [];
-  var enRed = false;
+  var descarga = null;
+  var repetir = false;
+  var seccionesVistas = {};
 
   function clon(valor) {
     return valor == null ? valor : JSON.parse(JSON.stringify(valor));
@@ -40,7 +42,8 @@
       localStorage.setItem(CLAVE_CACHE, JSON.stringify({
         ts: Date.now(),
         registros: crudo.registros,
-        ajustes: crudo.ajustes
+        ajustes: crudo.ajustes,
+        secciones: Object.keys(seccionesVistas)
       }));
     } catch (e) { /* sin espacio: seguimos con la red o la semilla */ }
   }
@@ -88,8 +91,14 @@
     crudo.ajustes.forEach(function (a) { ajustes[a.seccion] = a.datos || {}; });
 
     var gestionadas = {};
-    Object.keys(porSeccion).forEach(function (s) { gestionadas[s] = true; });
-    Object.keys(ajustes).forEach(function (s) { gestionadas[s] = true; });
+    Object.keys(porSeccion).forEach(function (s) {
+      gestionadas[s] = true;
+      seccionesVistas[s] = true;
+    });
+    Object.keys(ajustes).forEach(function (s) {
+      gestionadas[s] = true;
+      seccionesVistas[s] = true;
+    });
 
     Object.keys(M).forEach(function (sec) {
       var m = M[sec];
@@ -103,7 +112,7 @@
       m.listas.forEach(function (l) {
         var filas = porSeccion[sec] && porSeccion[sec][l.nombre];
         if (!filas) {
-          if (!gestionadas[sec]) return;  // aún sin migrar: se queda la semilla
+          if (!gestionadas[sec] && !seccionesVistas[sec]) return;  // aún sin migrar: se queda la semilla
           filas = [];
         }
         if (l.fuente) {
@@ -151,26 +160,38 @@
   }
 
   function descargar() {
-    if (!window.CampoAPI || !window.CampoAPI.configurado || enRed) return Promise.resolve(false);
-    enRed = true;
-    return conTiempo(Promise.all([
+    if (!window.CampoAPI || !window.CampoAPI.configurado) return Promise.resolve(false);
+    if (descarga) {
+      repetir = true;
+      return descarga.then(function () {
+        if (!repetir) return false;
+        repetir = false;
+        return descargar();
+      });
+    }
+    descarga = conTiempo(Promise.all([
       window.CampoAPI.listarRegistros(),
       window.CampoAPI.listarAjustes()
     ])).then(function (r) {
       crudo.registros = Array.isArray(r[0]) ? r[0] : [];
       crudo.ajustes = Array.isArray(r[1]) ? r[1] : [];
       cache = { ts: Date.now(), registros: crudo.registros, ajustes: crudo.ajustes };
-      guardarCache();
       origen = 'red';
       agrupar();
-      enRed = false;
+      guardarCache();
       if (!hidratado) marcarListo();
       avisar();
       return true;
     }).catch(function () {
-      enRed = false;
       return false;
+    }).then(function (r) {
+      descarga = null;
+      return r;
+    }, function (e) {
+      descarga = null;
+      throw e;
     });
+    return descarga;
   }
 
   // 1. Arranque: cache local primero (sincrónico).
@@ -178,6 +199,7 @@
   if (cache) {
     crudo.registros = cache.registros;
     crudo.ajustes = cache.ajustes;
+    (cache.secciones || []).forEach(function (s) { seccionesVistas[s] = true; });
     origen = 'cache';
     agrupar();
   }

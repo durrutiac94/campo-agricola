@@ -16,7 +16,7 @@
 
  */
 
-const VERSION = 'v5';
+const VERSION = 'v6';
 
 const CACHE_SHELL = `campo-shell-${VERSION}`;
 

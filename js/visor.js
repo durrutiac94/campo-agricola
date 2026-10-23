@@ -312,6 +312,12 @@
 
   /* ----------------------------------------------------------- Documentos */
 
+  function archivoPendiente(doc) {
+
+    return !doc || !doc.archivo || /^pdfs\//.test(doc.archivo);
+
+  }
+
   function tarjetaDocumento(doc, opciones = {}) {
 
     const art = C.el('article', 'doc-card');
@@ -320,7 +326,9 @@
 
     art.id = id;
 
-    const ext = extension(doc.archivo);
+    const disponible = !archivoPendiente(doc);
+
+    const ext = disponible ? extension(doc.archivo) : 'PDF';
 
     art.innerHTML = `
 
@@ -350,31 +358,39 @@
 
     const acciones = C.el('div', 'acciones');
 
-    const btnVer = C.el('button', 'btn pequeno', 'Ver en el sitio');
+    if (disponible) {
 
-    btnVer.type = 'button';
+      const btnVer = C.el('button', 'btn pequeno', 'Ver en el sitio');
 
-    btnVer.addEventListener('click', () => abrirPDF(doc.titulo, doc.archivo));
+      btnVer.type = 'button';
 
-    acciones.appendChild(btnVer);
+      btnVer.addEventListener('click', () => abrirPDF(doc.titulo, doc.archivo));
 
-    const aDesc = C.el('a', 'btn secundario pequeno', 'Descargar');
+      acciones.appendChild(btnVer);
 
-    aDesc.href = doc.archivo;
+      const aDesc = C.el('a', 'btn secundario pequeno', 'Descargar');
 
-    aDesc.setAttribute('download', '');
+      aDesc.href = doc.archivo;
 
-    acciones.appendChild(aDesc);
+      aDesc.setAttribute('download', '');
 
-    const aNueva = C.el('a', 'btn secundario pequeno', 'Abrir aparte');
+      acciones.appendChild(aDesc);
 
-    aNueva.href = doc.archivo;
+      const aNueva = C.el('a', 'btn secundario pequeno', 'Abrir aparte');
 
-    aNueva.target = '_blank';
+      aNueva.href = doc.archivo;
 
-    aNueva.rel = 'noopener';
+      aNueva.target = '_blank';
 
-    acciones.appendChild(aNueva);
+      aNueva.rel = 'noopener';
+
+      acciones.appendChild(aNueva);
+
+    } else {
+
+      acciones.appendChild(C.el('span', 'etiqueta neutra', 'Pendiente de subir'));
+
+    }
 
     if (opciones.origen && window.CampoEditor && window.CampoEditor.puedeEditar()) {
 

@@ -11,6 +11,8 @@
   var MANIFIESTO = window.CAMPO_MANIFIESTO || {};
   var contadorCampos = 0;
   var dialogo = null;
+  var MAX_PDF = 20 * 1024 * 1024;
+  var BUCKET_DOCUMENTOS = (window.CAMPO_SUPABASE && window.CAMPO_SUPABASE.bucket) || 'documentos';
 
   function clon(v) { return v == null ? v : JSON.parse(JSON.stringify(v)); }
 
@@ -182,12 +184,37 @@
     return String(valor);
   }
 
-  function control(def, valor) {
+  function control(def, valor, datos) {
     var id = 'campo-' + (contadorCampos += 1);
     var v = valorTexto(def, valor);
     var req = def.requerido ? ' required' : '';
     var tipo = def.tipo || 'text';
     var input;
+    if (tipo === 'file') {
+      datos = datos || {};
+      var actual;
+      if (v) {
+        actual = /^pdfs\//.test(v)
+          ? '<span class="archivo-pendiente">Pendiente de subir</span> ' + C.esc(v)
+          : '<a href="' + C.esc(v) + '" target="_blank" rel="noopener">' +
+            C.esc(datos.nombreArchivo || 'Ver PDF actual') + '</a>';
+      } else {
+        actual = '<span class="ayuda-campo">Sin archivo.</span>';
+      }
+      input =
+        '<div class="campo-archivo">' +
+          '<div class="archivo-actual">' + actual + '</div>' +
+          '<input id="' + id + '" type="file" accept="application/pdf" data-archivo-file>' +
+          '<input type="hidden" name="' + C.esc(def.k) + '" value="' + C.esc(v) + '">' +
+          '<input type="hidden" name="ruta" value="' + C.esc(datos.ruta || '') + '">' +
+          '<input type="hidden" name="nombreArchivo" value="' + C.esc(datos.nombreArchivo || '') + '">' +
+          '<input type="hidden" name="tamano" value="' + C.esc(datos.tamano == null ? '' : datos.tamano) + '">' +
+          '<div class="archivo-estado" data-archivo-estado></div>' +
+        '</div>';
+      return '<div class="campo-form' + (def.ancho === 2 ? ' ancho-2' : '') + '">' +
+        '<label for="' + id + '">' + C.esc(def.etiqueta) + '</label>' + input +
+        (def.ayuda ? ayuda(def.ayuda) : '') + '</div>';
+    }
     if (tipo === 'textarea') {
       input = '<textarea id="' + id + '" name="' + C.esc(def.k) + '" rows="2"' + req + '>' + C.esc(v) + '</textarea>';
     } else if (tipo === 'select') {
@@ -221,7 +248,7 @@
 
   function camposHTML(defs, datos) {
     return defs.map(function (def) {
-      return control(def, leerRuta(datos, def.k));
+      return control(def, leerRuta(datos, def.k), datos);
     }).join('');
   }
 
@@ -263,11 +290,62 @@
       }
       escribirRuta(salida, def.k, v);
     });
+    ['ruta', 'nombreArchivo', 'tamano'].forEach(function (k) {
+      var el = form.querySelector('[name="' + k + '"]');
+      if (!el) return;
+      var v = el.value.trim();
+      escribirRuta(salida, k, k === 'tamano' && v !== '' ? Number(v) : (v || null));
+    });
     return salida;
   }
 
   function cssEscape(texto) {
     return String(texto).replace(/["\\]/g, '\\$&');
+  }
+
+  function archivoDeFormulario(form) {
+    var el = form.querySelector('[data-archivo-file]');
+    return el && el.files && el.files[0] ? el.files[0] : null;
+  }
+
+  function errorArchivo(archivo) {
+    if (!archivo) return '';
+    if (!/\.pdf$/i.test(archivo.name) || (archivo.type && archivo.type !== 'application/pdf')) {
+      return 'Selecciona un archivo PDF.';
+    }
+    if (archivo.size > MAX_PDF) return 'El PDF no puede superar los 20 MB.';
+    return '';
+  }
+
+  function tamanoLegible(bytes) {
+    if (bytes >= 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1).replace('.', ',') + ' MB';
+    return Math.max(1, Math.round(bytes / 1024)) + ' KB';
+  }
+
+  function estadoArchivo(nodo, archivo) {
+    if (!nodo) return;
+    var error = errorArchivo(archivo);
+    nodo.textContent = error || (archivo ? archivo.name + ' · ' + tamanoLegible(archivo.size) : '');
+    nodo.classList.toggle('error', !!error);
+  }
+
+  function rutaDeArchivo(item) {
+    if (!item) return '';
+    if (item.ruta) return item.ruta;
+    var marca = '/storage/v1/object/public/' + BUCKET_DOCUMENTOS + '/';
+    var url = String(item.archivo || '');
+    var i = url.indexOf(marca);
+    if (i < 0) return '';
+    try { return decodeURIComponent(url.slice(i + marca.length)); }
+    catch (e) { return url.slice(i + marca.length); }
+  }
+
+  function sesionVencida() {
+    cerrar();
+    API.salir().then(function () {
+      toast('La sesión venció. Vuelve a entrar.', 'error');
+      abrirLogin();
+    });
   }
 
   /* -------------------------------------------------------------- Guardar */
@@ -338,6 +416,16 @@
     abrir(d);
 
     var form = d.querySelector('form');
+    var entradaArchivo = form.querySelector('[data-archivo-file]');
+    if (entradaArchivo) {
+      entradaArchivo.addEventListener('change', function () {
+        var archivo = archivoDeFormulario(form);
+        estadoArchivo(form.querySelector('[data-archivo-estado]'), archivo);
+        if (archivo && errorArchivo(archivo)) entradaArchivo.value = '';
+        var error = d.querySelector('.error-form');
+        if (error) error.hidden = true;
+      });
+    }
     if (item) {
       def.campos.forEach(function (f) {
         if (!f.fijoAlEditar) return;
@@ -348,32 +436,75 @@
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var valores = leerFormulario(form, def.campos);
+      var archivo = archivoDeFormulario(form);
+      var error = d.querySelector('.error-form');
+      var problemaArchivo = errorArchivo(archivo);
+      if (problemaArchivo) {
+        mostrarError(error, problemaArchivo);
+        return;
+      }
       var faltan = def.campos.filter(function (f) {
+        if (f.tipo === 'file') return false;
         return f.requerido && !String(leerRuta(valores, f.k) == null ? '' : leerRuta(valores, f.k)).trim();
       });
       if (faltan.length) {
-        mostrarError(d.querySelector('.error-form'), 'Falta completar: ' + faltan.map(function (f) { return f.etiqueta; }).join(', ') + '.');
+        mostrarError(error, 'Falta completar: ' + faltan.map(function (f) { return f.etiqueta; }).join(', ') + '.');
+        return;
+      }
+      var requiereArchivo = def.campos.some(function (f) { return f.tipo === 'file' && f.requerido; });
+      if (requiereArchivo && !String(valores.archivo || '').trim() && !archivo) {
+        mostrarError(error, 'Selecciona un PDF.');
         return;
       }
       var boton = form.querySelector('[type="submit"]');
+      var rutaAnterior = rutaDeArchivo(item) || valores.ruta || '';
+      var subida = null;
       boton.disabled = true;
-      boton.textContent = 'Guardando...';
-      guardarFila(seccion, lista, item, valores).then(function () {
+      boton.textContent = archivo ? 'Subiendo PDF...' : 'Guardando...';
+      var tarea = Promise.resolve();
+      if (archivo) {
+        tarea = API.subirPDF(archivo).then(function (res) {
+          subida = res;
+          valores.archivo = res.url;
+          valores.ruta = res.ruta;
+          valores.nombreArchivo = archivo.name;
+          valores.tamano = archivo.size;
+          boton.textContent = 'Guardando...';
+        });
+      }
+      tarea.then(function () {
+        return guardarFila(seccion, lista, item, valores);
+      }).then(function () {
+        if (subida && rutaAnterior && rutaAnterior !== subida.ruta) {
+          API.borrarPDF(rutaAnterior).catch(function () {
+            toast('Guardado, pero no se pudo borrar el PDF anterior.', 'error');
+          });
+        }
         cerrar();
         toast('Guardado');
         recargar();
       }).catch(function (err) {
+        if (subida) API.borrarPDF(subida.ruta).catch(function () {});
+        if (esErrorSesion(err)) { sesionVencida(); return; }
         boton.disabled = false;
         boton.textContent = 'Guardar';
-        mostrarError(d.querySelector('.error-form'), mensajeGuardado(err));
+        mostrarError(error, mensajeGuardado(err));
       });
     });
+  }
+
+  function esErrorSesion(err) {
+    if (!err) return false;
+    if (err.estado === 401 || err.codigo === 401) return true;
+    var cuerpo = err.cuerpo || {};
+    var texto = String(cuerpo.message || cuerpo.error || err.message || '');
+    return err.codigo === 403 && /jwt|jws|token|unauthorized|sesión|session/i.test(texto);
   }
 
   function mensajeGuardado(err) {
     if (!err) return 'No se pudo guardar.';
     if (!navigator.onLine) return 'Sin conexión: no se pudo guardar. Revisa la señal e inténtalo de nuevo.';
-    if (err.estado === 401) return 'La sesión venció. Vuelve a entrar.';
+    if (esErrorSesion(err)) return 'La sesión venció. Vuelve a entrar.';
     return err.message || 'No se pudo guardar.';
   }
 
@@ -382,14 +513,22 @@
     if (!item._id) { toast('Este registro inicial no se puede borrar.', 'error'); return; }
     var nombre = item.titulo || item.nombre || item.empresa || item.labor || item.concepto || 'este registro';
     var extra = '';
+    var rutaPDF = rutaDeArchivo(item);
+    if (rutaPDF) extra += ' También se borrará el PDF.';
     if (seccion === 'calendario' && lista === 'categorias') {
       var usos = (window.DATOS_CALENDARIO && window.DATOS_CALENDARIO.eventos ? window.DATOS_CALENDARIO.eventos : []).filter(function (e) { return e.categoria === item.id; }).length;
       if (usos) extra = ' Hay ' + usos + ' evento' + (usos === 1 ? '' : 's') + ' con esta categoría: quedarán sin categoría.';
     }
     if (!window.confirm('¿Borrar ' + nombre + '?' + extra)) return;
     API.borrarRegistro(item._id).then(function () {
-      toast('Borrado');
-      recargar();
+      var avisoPDF = '';
+      var limpieza = rutaPDF
+        ? API.borrarPDF(rutaPDF).catch(function () { avisoPDF = ' El PDF no se pudo borrar.'; })
+        : Promise.resolve();
+      return limpieza.then(function () {
+        toast('Borrado' + avisoPDF, avisoPDF ? 'error' : 'ok');
+        return recargar();
+      });
     }).catch(function (err) {
       toast(mensajeGuardado(err), 'error');
     });

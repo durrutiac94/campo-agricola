@@ -1,6 +1,6 @@
 /* Esquema de los formularios del editor.
    Cada lista define sus campos en el orden en que se piden.
-   Tipos: text, textarea, number, date, select, checkbox, color, tags, numeros. */
+   Tipos: text, textarea, number, date, select, checkbox, color, tags, numeros, file. */
 (function () {
   'use strict';
 
@@ -30,7 +30,7 @@
 
   var DOCS = [
     C('titulo', 'Título', 'text', { requerido: true, ancho: 2 }),
-    C('archivo', 'Archivo o enlace', 'text', { ayuda: 'Ruta del PDF o dirección web. La subida de archivos llega en la siguiente fase.' }),
+    C('archivo', 'Archivo PDF', 'file', { requerido: true, ancho: 2, ayuda: 'Solo PDF, hasta 20 MB. Se guarda en Supabase Storage.' }),
     T('descripcion', 'Descripción'),
     F('fecha', 'Fecha'),
     C('seccion', 'Sección'),

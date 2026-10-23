@@ -234,33 +234,7 @@ window.DATOS_AVELLANOS = {
 
   ],
 
-  documentos: [
-
-    { titulo: 'Plan de manejo agronómico 2026', archivo: 'pdfs/avellanos/plan-manejo-2026.pdf',
-
-      descripcion: 'Calendario de labores, dosis de fertilización y protocolo fitosanitario de la temporada.',
-
-      fecha: '2026-01-10', seccion: 'Avellanos', tags: ['plan', '2026'] },
-
-    { titulo: 'Ficha técnica de variedades', archivo: 'pdfs/avellanos/ficha-variedades.pdf',
-
-      descripcion: 'Comparativo de polinizadores, fechas de floración y rendimiento por variedad.',
-
-      fecha: '2025-11-20', seccion: 'Avellanos', tags: ['variedades'] },
-
-    { titulo: 'Registro de floración y cuajado', archivo: 'pdfs/avellanos/registro-floracion.pdf',
-
-      descripcion: 'Bitácora de floración por variedad y estimación del porcentaje de cuajado.',
-
-      fecha: '2026-09-15', seccion: 'Avellanos', tags: ['floración', '2026'] },
-
-    { titulo: 'Protocolo de control de oidio', archivo: 'pdfs/avellanos/protocolo-oidio.pdf',
-
-      descripcion: 'Protocolo de aplicación y control del oidio y otras enfermedades de la hoja.',
-
-      fecha: '2026-04-02', seccion: 'Avellanos', tags: ['sanidad'] }
-
-  ]
+  documentos: []
 
 };
 

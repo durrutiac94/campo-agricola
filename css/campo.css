@@ -194,6 +194,13 @@ html:not(.editor-activo) .col-acciones { display: none; }
 .campo-check label { display: flex; align-items: center; gap: .45rem; font-weight: 600; }
 .campo-check input { width: auto; }
 .ayuda-campo { color: var(--texto-mute); font-size: .78rem; }
+.campo-archivo { display: flex; flex-direction: column; gap: .4rem; }
+.archivo-actual { color: var(--texto-soft); font-size: .9rem; overflow-wrap: anywhere; }
+.archivo-actual a { color: var(--enlace); }
+.archivo-pendiente { color: var(--texto-mute); font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; }
+.campo-form input[type="file"] { padding: .35rem; background: var(--superficie-alt); cursor: pointer; }
+.archivo-estado { color: var(--texto-mute); font-size: .8rem; overflow-wrap: anywhere; }
+.archivo-estado.error { color: var(--rojo-600); }
 .ayuda-dialogo { margin: 0 0 .9rem; color: var(--texto-mute); font-size: .9rem; }
 .error-form {
   margin: .8rem 0 0; padding: .55rem .7rem; border-radius: 7px;

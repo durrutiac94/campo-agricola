@@ -66,6 +66,8 @@
         if (!r.ok) {
           var err = new Error(mensajeDeError(cuerpo, r.status));
           err.estado = r.status;
+          err.codigo = cuerpo && typeof cuerpo === 'object' && cuerpo.statusCode
+            ? Number(cuerpo.statusCode) : r.status;
           err.cuerpo = cuerpo;
           throw err;
         }

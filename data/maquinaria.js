@@ -148,33 +148,7 @@ window.DATOS_MAQUINARIA = {
 
   ],
 
-  documentos: [
-
-    { titulo: 'Manual de operación del tractor John Deere 5075M', archivo: 'pdfs/maquinaria/manual-5075m.pdf',
-
-      descripcion: 'Manual de uso, lubricación, tabla de mantenimiento y procedimientos de seguridad.',
-
-      fecha: '2020-06-01', seccion: 'Maquinaria', tags: ['manual', 'tractor'] },
-
-    { titulo: 'Plan de mantenimiento 2026', archivo: 'pdfs/maquinaria/plan-mantenimiento.pdf',
-
-      descripcion: 'Calendario de mantenciones preventivas por equipo, repuestos y horas de servicio.',
-
-      fecha: '2026-01-08', seccion: 'Maquinaria', tags: ['plan', 'mantención'] },
-
-    { titulo: 'Ficha de combustible por mes', archivo: 'pdfs/maquinaria/ficha-combustible.pdf',
-
-      descripcion: 'Consumo de diésel por máquina, litros, costo y observaciones.',
-
-      fecha: '2026-03-05', seccion: 'Maquinaria', tags: ['combustible'] },
-
-    { titulo: 'Hoja de revisión de pulverizador', archivo: 'pdfs/maquinaria/hoja-revision-pulverizador.pdf',
-
-      descripcion: 'Checklist de calibración, boquillas, presión y registro de aplicaciones.',
-
-      fecha: '2026-03-05', seccion: 'Maquinaria', tags: ['pulverizador'] }
-
-  ]
+  documentos: []
 
 };
 

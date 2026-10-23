@@ -10,6 +10,7 @@ Sitio estático de gestión del campo (avellanos, ovinos, riego, maquinaria).
 - Contenido en Supabase (lectura pública) con copia local en el dispositivo
 - `data/*.js` queda como respaldo cuando no hay conexión ni caché
 - Edición en el sitio con cuenta: crear, modificar y borrar registros y fichas
+- Subida de PDFs desde el editor a Supabase Storage
 - PWA con Service Worker (lectura sin conexión)
 - Buscador global (Ctrl+K / `/`)
 - Calculadoras agrícolas
@@ -52,9 +53,9 @@ Las cuentas se crean desde el panel de Supabase (Authentication → Users). No h
 - Contenido en Supabase: lectura pública y edición con cuenta (RLS configurado en `supabase/esquema.sql`).
 - Los datos se muestran desde la copia local del dispositivo y luego se refrescan desde la nube.
 - Editor disponible en todas las secciones, el calendario, las bitácoras, los contactos y los documentos.
-- PDFs todavía no cargados: los enlaces de `documentos.html` se activarán en la fase de subida desde el sitio.
-- La sección Mapa queda congelada hasta decidir si se mantiene.
-- Pendientes: subida de PDF, cola de cambios sin conexión y aviso de sesión vencida.
+- Documentos PDF: se suben desde el editor a Supabase Storage (bucket público `documentos`, solo PDF, máximo 20 MB). Cualquiera con el enlace puede leerlos.
+- La sección Mapa queda como fase extra al final (mapa QGIS estático e interactivo).
+- Pendientes: cola de cambios sin conexión, aviso global de sesión vencida, cron anti-pausa y segunda cuenta. Mapa QGIS al final.
 
 ## Etiquetas
 
