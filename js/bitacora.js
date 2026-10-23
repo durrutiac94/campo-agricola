@@ -97,8 +97,8 @@
     panelGastos.appendChild(aviso);
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', render);
+  if (window.CampoDatos) {
+    window.CampoDatos.pintar(render);
   } else {
     render();
   }

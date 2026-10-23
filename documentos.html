@@ -67,6 +67,10 @@
 <div id="pie-footer"></div>
 
 <script src="data/documentos.js"></script>
+<script src="js/config.js"></script>
+<script src="js/supabase.js"></script>
+<script src="js/manifiesto.js"></script>
+<script src="js/datos.js"></script>
 <script src="js/app.js"></script>
 <script src="js/visor.js"></script>
 <script src="js/buscador.js"></script>
@@ -79,9 +83,10 @@
   var sel = document.getElementById('filtro-seccion');
   var inp = document.getElementById('filtro-buscar-doc');
   var cnt = document.getElementById('contador-docs');
-  var docs = window.DATOS_DOCUMENTOS || [];
+  var docs = [];
 
   function filtrar() {
+    docs = window.DATOS_DOCUMENTOS || [];
     var seccion = sel ? sel.value : 'todos';
     var q = inp ? C.norm(inp.value) : '';
     var lista = docs.filter(function (d) {

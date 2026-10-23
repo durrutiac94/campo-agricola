@@ -14,6 +14,8 @@
 
   let indice = null;
 
+  function invalidar() { indice = null; }
+
   function construirIndice() {
 
     const C = window.Campo;
@@ -292,7 +294,7 @@
 
       contenedor.innerHTML = '<div class="vacio">Sin resultados para "' +
 
-        window.Campo.esc(termino) + '</div>'";
+        window.Campo.esc(termino) + '</div>';
 
       contenedor.classList.add('visible');
 
@@ -336,6 +338,10 @@
 
     if (!input || !cont) return;
 
+    if (input.dataset.buscadorListo === '1') return;
+
+    input.dataset.buscadorListo = '1';
+
     let temporizador = null;
 
     const ejecutar = () => {
@@ -358,7 +364,13 @@
 
     document.addEventListener('click', (e) => {
 
-      if (!e.target.closest('.buscador-global')) cont.classList.remove('visible');
+      if (!e.target.closest('.buscador-global')) {
+
+        const c = document.getElementById('resultados-busqueda');
+
+        if (c) c.classList.remove('visible');
+
+      }
 
     });
 
@@ -378,21 +390,25 @@
 
     document.addEventListener('keydown', (e) => {
 
+      const actual = document.getElementById('busqueda-global');
+
+      if (!actual) return;
+
       const enCampo = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName);
 
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
 
         e.preventDefault();
 
-        input.focus();
+        actual.focus();
 
-        input.select();
+        actual.select();
 
       } else if (e.key === '/' && !enCampo) {
 
         e.preventDefault();
 
-        input.focus();
+        actual.focus();
 
       }
 
@@ -400,7 +416,7 @@
 
   }
 
-  window.CampoBuscador = { iniciar, buscar, construirIndice };
+  window.CampoBuscador = { iniciar, buscar, construirIndice, invalidar };
 
 })();
 

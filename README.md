@@ -39,9 +39,11 @@ GitHub Pages desde la raíz del repositorio, rama `main`:
 
 ## Estado
 
+- Contenido en Supabase: lectura pública y edición con cuenta (RLS configurado en `supabase/esquema.sql`).
+- Los datos se muestran desde la copia local del dispositivo y luego se refrescan desde la nube.
 - PDFs todavía no cargados: los enlaces de `documentos.html` se activarán en la fase de subida.
 - La sección Mapa queda congelada hasta decidir si se mantiene.
-- Próxima etapa: edición del contenido con Supabase (lectura pública, escritura con cuenta).
+- Próxima etapa: editor en el sitio para las personas con cuenta.
 
 ## Etiquetas
 

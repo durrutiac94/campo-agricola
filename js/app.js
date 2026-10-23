@@ -362,6 +362,16 @@
 
   /* ------------------------------------------------------------- Arranque -- */
 
+  function repintar() {
+    pintarHeader();
+    pintarFooter();
+    activarMenuMovil();
+    activarDesplegables();
+    activarModoCampo();
+    activarImpresion();
+    if (window.CampoBuscador) window.CampoBuscador.iniciar();
+  }
+
   function iniciar() {
     pintarHeader();
     pintarFooter();
@@ -371,6 +381,7 @@
     activarImpresion();
     activarServiceWorker();
     if (window.CampoBuscador) window.CampoBuscador.iniciar();
+    if (window.CampoDatos) window.CampoDatos.alCambiar(repintar);
   }
 
   if (document.readyState === 'loading') {

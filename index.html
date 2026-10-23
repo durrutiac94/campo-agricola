@@ -74,47 +74,69 @@
 
 <script src="data/campo.js"></script>
 <script src="data/calendario.js"></script>
+<script src="js/config.js"></script>
+<script src="js/supabase.js"></script>
+<script src="js/manifiesto.js"></script>
+<script src="js/datos.js"></script>
 <script src="js/app.js"></script>
 <script>
-(function() {
+(function () {
   'use strict';
   var C = window.Campo;
-  var datos = window.DATOS_CAMPO || {};
-  var desc = document.getElementById('descripcion-campo');
-  if (desc && datos.descripcion) desc.textContent = datos.descripcion;
-  
-  var kpisCont = document.getElementById('kpis-portada');
-  if (kpisCont && datos.kpis) {
-    var grilla = C.el ? document.createElement('div') : null;
-    if (!grilla) grilla = document.createElement('div');
-    grilla.className = 'kpis';
-    datos.kpis.forEach(function(s) {
-      var k = document.createElement('div');
-      k.className = 'kpi';
-      k.innerHTML = '<div class="valor">' + C.esc(s.valor) + (s.unidad ? '<span class="unidad">' + C.esc(s.unidad) + '</span>' : '') + '</div>' +
-                    '<div class="etiqueta">' + C.esc(s.etiqueta) + '</div>';
-      grilla.appendChild(k);
-    });
-    kpisCont.appendChild(grilla);
+
+  function pintar() {
+    var datos = window.DATOS_CAMPO || {};
+    var desc = document.getElementById('descripcion-campo');
+    if (desc) desc.textContent = datos.descripcion || '';
+
+    var kpisCont = document.getElementById('kpis-portada');
+    if (kpisCont) {
+      kpisCont.innerHTML = '';
+      if (datos.kpis && datos.kpis.length) {
+        var grilla = document.createElement('div');
+        grilla.className = 'kpis';
+        datos.kpis.forEach(function (s) {
+          var k = document.createElement('div');
+          k.className = 'kpi';
+          k.innerHTML = '<div class="valor">' + C.esc(s.valor) +
+            (s.unidad ? '<span class="unidad">' + C.esc(s.unidad) + '</span>' : '') +
+            '</div><div class="etiqueta">' + C.esc(s.etiqueta) + '</div>';
+          grilla.appendChild(k);
+        });
+        kpisCont.appendChild(grilla);
+      }
+    }
+
+    var hitosCont = document.getElementById('hitos-portada');
+    if (hitosCont) {
+      hitosCont.innerHTML = '';
+      var hitos = (datos.hitos || []).slice().sort(function (a, b) {
+        return String(a.fecha).localeCompare(String(b.fecha));
+      }).slice(0, 6);
+      if (hitos.length) {
+        var tabla = document.createElement('div');
+        tabla.className = 'tabla-envoltura';
+        var t = document.createElement('table');
+        t.className = 'tabla responsive';
+        t.innerHTML = '<thead><tr><th>Fecha</th><th>Tarea</th><th>Tipo</th></tr></thead><tbody></tbody>';
+        var tbody = t.querySelector('tbody');
+        hitos.forEach(function (h) {
+          var tr = document.createElement('tr');
+          tr.innerHTML = '<td data-label="Fecha">' + C.esc(C.fecha ? C.fecha(h.fecha) : h.fecha) + '</td>' +
+            '<td data-label="Tarea">' + C.esc(h.titulo) + '</td>' +
+            '<td data-label="Tipo"><span class="etiqueta">' + C.esc(h.tipo) + '</span></td>';
+          tbody.appendChild(tr);
+        });
+        tabla.appendChild(t);
+        hitosCont.appendChild(tabla);
+      }
+    }
   }
-  
-  var hitosCont = document.getElementById('hitos-portada');
-  if (hitosCont && datos.hitos) {
-    var tabla = document.createElement('div');
-    tabla.className = 'tabla-envoltura';
-    var t = document.createElement('table');
-    t.className = 'tabla responsive';
-    t.innerHTML = '<thead><tr><th>Fecha</th><th>Tarea</th><th>Tipo</th></tr></thead><tbody></tbody>';
-    var tbody = t.querySelector('tbody');
-    datos.hitos.slice(0, 6).forEach(function(h) {
-      var tr = document.createElement('tr');
-      tr.innerHTML = '<td data-label="Fecha">' + C.esc(C.fecha ? C.fecha(h.fecha) : h.fecha) + '</td>' +
-                     '<td data-label="Tarea">' + C.esc(h.titulo) + '</td>' +
-                     '<td data-label="Tipo"><span class="etiqueta">' + C.esc(h.tipo) + '</span></td>';
-      tbody.appendChild(tr);
-    });
-    tabla.appendChild(t);
-    hitosCont.appendChild(tabla);
+
+  if (window.CampoDatos) {
+    window.CampoDatos.pintar(pintar);
+  } else {
+    pintar();
   }
 })();
 </script>

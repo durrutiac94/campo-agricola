@@ -6,13 +6,14 @@
   'use strict';
 
   const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-  const categorias = (window.DATOS_CALENDARIO && window.DATOS_CALENDARIO.categorias) || [];
 
   function render() {
     const cont = document.getElementById('calendario');
     if (!cont) return;
     const datos = window.DATOS_CALENDARIO;
     if (!datos) { cont.innerHTML = '<div class="vacio">Sin datos de calendario</div>'; return; }
+    const categorias = datos.categorias || [];
+    const anio = datos['año'] || datos.ano || '';
 
     cont.innerHTML = '';
 
@@ -46,7 +47,7 @@
         panel.className = 'panel-mes';
         panel.id = 'mes-' + mesIdx;
         const h = document.createElement('h3');
-        h.textContent = nombreMes + ' ' + (datos.ano || '');
+        h.textContent = nombreMes + ' ' + anio;
         panel.appendChild(h);
         const lista = document.createElement('div');
         lista.className = 'lista-eventos';
@@ -66,8 +67,8 @@
     pintar('todos');
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', render);
+  if (window.CampoDatos) {
+    window.CampoDatos.pintar(render);
   } else {
     render();
   }

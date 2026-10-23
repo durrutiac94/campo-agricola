@@ -25,17 +25,17 @@
       { valor: n(c.plantasTotales), unidad: 'plantas', etiqueta: 'Plantas en pie' },
       { valor: n(c.densidad), unidad: 'plantas/ha', etiqueta: 'Densidad' },
       { valor: c.marco, etiqueta: 'Marco de plantacion' },
-      { valor: n(c.vidaProductiva), unidad: 'anos', etiqueta: 'Vida productiva' }
+      { valor: n(c.vidaProductiva), unidad: 'años', etiqueta: 'Vida productiva' }
     ];
     const tablas = [
-      tabla('Variedades plantadas', ['Variedad', 'Superficie (ha)', 'Plantacion', 'Floracion', 'Polinizador', 'Rendimiento (kg/ha)', 'Notas'],
+      tabla('Variedades plantadas', ['Variedad', 'Superficie (ha)', 'Plantación', 'Floración', 'Polinizador', 'Rendimiento (kg/ha)', 'Notas'],
         (d.variedades || []).map(function(v){ return [v.nombre, n(v.superficie,1), v.plantacion, v.floracion, v.polinizador, n(v.rendimiento), v.nota]; }),
         [1,2,5]),
       tabla('Fases fenologicas', ['Fase', 'Mes', 'Detalle'], (d.fases || []).map(function(f){ return [f.fase, f.mes, f.detalle]; })),
       tabla('Labores del ano', ['Periodo', 'Labor', 'Momento', 'Responsable', 'Detalle'], (d.labores || []).map(function(l){ return [l.periodo, l.labor, l.momento, l.responsable, l.detalle]; })),
       tabla('Plagas y enfermedades', ['Nombre', 'Tipo', 'Gravedad', 'Detalle', 'Control'], (d.plagas || []).map(function(p){ return [p.nombre, p.tipo, p.gravedad, p.detalle, p.control]; })),
-      tabla('Requisitos climaticos', ['Parametro', 'Requerimiento', 'Estado', 'Nota'], (d.climaRequisitos || []).map(function(r){ return [r.parametro, r.requerimiento, r.estado, r.nota]; })),
-      tabla('Produccion por temporada', ['Temporada', 'Hectareas', 'Rendimiento (kg/ha)', 'Produccion (kg)', 'Precio ($/kg)', 'Ingreso ($)'],
+      tabla('Requisitos climáticos', ['Parámetro', 'Requerimiento', 'Estado', 'Nota'], (d.climaRequisitos || []).map(function(r){ return [r.parametro, r.requerimiento, r.estado, r.nota]; })),
+      tabla('Producción por temporada', ['Temporada', 'Hectáreas', 'Rendimiento (kg/ha)', 'Producción (kg)', 'Precio ($/kg)', 'Ingreso ($)'],
         (d.produccion || []).map(function(p){ return [p.temporada, n(p.hectareas), n(p.rendimiento), n(p.produccion), n(p.precio), n(p.ingreso)]; }),
         [1,2,3,4,5])
     ];
@@ -56,14 +56,14 @@
       { valor: n(c.potrero), unidad: 'ha', etiqueta: 'Potrero' }
     ];
     const tablas = [
-      tabla('Composicion del rebano', ['Categoria', 'Cantidad', 'Peso (kg)', 'Nota'], (d.composicion || []).map(function(x){ return [x.categoria, n(x.cantidad), n(x.peso), x.nota]; }), [1,2]),
+      tabla('Composición del rebaño', ['Categoria', 'Cantidad', 'Peso (kg)', 'Nota'], (d.composicion || []).map(function(x){ return [x.categoria, n(x.cantidad), n(x.peso), x.nota]; }), [1,2]),
       tabla('Calendario reproductivo', ['Etapa', 'Detalle'], [
-        ['Celo', (d.reproduction||{}).celo], ['Monta', (d.reproduction||{}).monta], ['Gestacion', (d.reproduction||{}).permanecen],
+        ['Celo', (d.reproduction||{}).celo], ['Monta', (d.reproduction||{}).monta], ['Gestación', (d.reproduction||{}).permanecen],
         ['Parto', (d.reproduction||{}).parto], ['Destete', (d.reproduction||{}).destete], ['Prolificidad', (d.reproduction||{}).prolificidad], ['Supervivencia', (d.reproduction||{}).SUPERVIVENCIA || (d.reproduction||{}).supervivencia]
       ]),
       tabla('Manejo sanitario', ['Mes', 'Tarea', 'Producto', 'Dosis', 'Responsable'], (d.manejoSanitario || []).map(function(m){ return [m.mes, m.tarea, m.producto, m.dosis, m.responsable]; })),
       tabla('Plan de pastoreo', ['Periodo', 'Destino', 'Carga', 'Nota'], (d.pastoreo || []).map(function(p){ return [p.periodo, p.destino, p.carga, p.nota]; })),
-      tabla('Produccion del rebano', ['Temporada', 'Corderos', 'Tasa de nacimiento', 'Peso al destete (kg)', 'Vendidos', 'Precio ($)'],
+      tabla('Producción del rebaño', ['Temporada', 'Corderos', 'Tasa de nacimiento', 'Peso al destete (kg)', 'Vendidos', 'Precio ($)'],
         (d.produccion || []).map(function(p){ return [p.temporada, n(p.corderos), n(p.tasaNacimiento,2), n(p.pesoDestete), n(p.venta), n(p.precio)]; }), [1,2,3,4,5]),
       tabla('Indicadores de manejo', ['Indicador', 'Valor', 'Meta', 'Estado'], (d.indicadores || []).map(function(i){ return [i.nombre, i.valor, i.meta, i.estado]; }))
     ];
@@ -84,16 +84,16 @@
       { valor: n(operativos), unidad: 'de ' + (d.sectores||[]).length, etiqueta: 'Sectores con goteo' }
     ];
     const tablas = [
-      tabla('Parametros del sistema', ['Parametro', 'Valor'], [
+      tabla('Parámetros del sistema', ['Parámetro', 'Valor'], [
         ['Sistema', d.sistema], ['Fuente de agua', d.fuente], ['Caudal del pozo', n(d.caudalPozo)+' m3/h'], ['Volumen del tranque', n(d.volumenTranque)+' m3'],
         ['Eficiencia', n(d.eficiencia)+' %'], ['Caudal del emisor', n(d.caudalEmisor)+' L/h'], ['Goteros por planta', n(d.goterosPorPlanta)],
         ['Horas de bombeo al dia', n(d.horasBombeoDia)+' h'], ['Presion de operacion', n(d.presionOperacion,1)+' bar'], ['Filtro', d.filtro],
-        ['Longitud de linea', n(d.longitudLinea)+' m'], ['Ultima revision', d.ultimaRevision], ['Proxima revision', d.proximaRevision]
+        ['Longitud de linea', n(d.longitudLinea)+' m'], ['Última revision', d.ultimaRevisión], ['Proxima revision', d.proximaRevisión]
       ]),
       tabla('Sectores de riego', ['Sector', 'Superficie (ha)', 'Estado', 'Lineas', 'Caudal (m3/h)', 'Programacion', 'Notas'],
         (d.sectores||[]).map(function(s){ return [s.nombre, n(s.superficie), s.operativo?'Operativo':'Sin riego', n(s.lineas), n(s.caudal,1), s.programacion, s.notas]; }), [1,3,4]),
-      tabla('Balance hidrico mensual', ['Mes', 'ETc (mm)', 'Lluvia (mm)', 'Neto (mm)', 'Volumen (m3)'], (d.balance||[]).map(function(b){ return [b.mes, n(b.etc), n(b.lluvia), n(b.neto), n(b.volumen)]; }), [1,2,3,4]),
-      tabla('Mantenimiento programado', ['Tarea', 'Frecuencia', 'Ultima ejecucion'], (d.mantenimiento||[]).map(function(m){ return [m.tarea, m.frecuencia, m.ultimo]; })),
+      tabla('Balance hídrico mensual', ['Mes', 'ETc (mm)', 'Lluvia (mm)', 'Neto (mm)', 'Volumen (m3)'], (d.balance||[]).map(function(b){ return [b.mes, n(b.etc), n(b.lluvia), n(b.neto), n(b.volumen)]; }), [1,2,3,4]),
+      tabla('Mantenimiento programado', ['Tarea', 'Frecuencia', 'Última ejecucion'], (d.mantenimiento||[]).map(function(m){ return [m.tarea, m.frecuencia, m.ultimo]; })),
       tabla('Registros de riego', ['Fecha', 'Sector', 'Horas', 'Volumen (m3)', 'Caudal (m3/h)', 'Operario'], (d.registros||[]).map(function(r){ return [r.fecha, r.sector, n(r.horas,1), n(r.volumen), n(r.caudal,1), r.operario]; }), [2,3,4])
     ];
     d.tablas = tablas;
@@ -117,13 +117,13 @@
     ];
     const tablas = [
       tabla('Tractor principal', ['Caracteristica', 'Valor'], [
-        ['Marca', t.marca], ['Modelo', t.modelo], ['Ano', n(t.ano)], ['Potencia', n(t.hp)+' HP'], ['Horas', n(t.horas)+' h'], ['Traccion', t.traccion],
-        ['Neumaticos', t.neumaticos], ['Combustible', t.combustible], ['Ultima revision', t.ultimaRevision], ['Proxima revision', t.proximaRevision], ['Notas', t.notas]
+        ['Marca', t.marca], ['Modelo', t.modelo], ['Año', n(t.ano)], ['Potencia', n(t.hp)+' HP'], ['Horas', n(t.horas)+' h'], ['Tracción', t.traccion],
+        ['Neumáticos', t.neumaticos], ['Combustible', t.combustible], ['Última revision', t.ultimaRevisión], ['Proxima revision', t.proximaRevisión], ['Notas', t.notas]
       ]),
-      tabla('Implementos', ['Nombre', 'Marca', 'Modelo', 'Ano', 'Estado', 'Horas', 'Ubicacion', 'Uso', 'Revision'],
+      tabla('Implementos', ['Nombre', 'Marca', 'Modelo', 'Año', 'Estado', 'Horas', 'Ubicación', 'Uso', 'Revisión'],
         (d.implementos||[]).map(function(i){ return [i.nombre, i.marca, i.modelo, n(i.ano), i.estado, n(i.horasUso), i.ubicacion, i.uso, i.revision]; }), [3,5]),
       tabla('Herramientas', ['Nombre', 'Cantidad', 'Estado', 'Uso'], (d.herramientas||[]).map(function(h){ return [h.nombre, n(h.cantidad), h.estado, h.uso]; }), [1]),
-      tabla('Consumo de combustible', ['Mes', 'Litros', 'Costo ($)', 'Observacion'], (d.combustible||[]).map(function(c){ return [c.mes, n(c.litros), n(c.costo), c.observacion]; }), [1,2]),
+      tabla('Consumo de combustible', ['Mes', 'Litros', 'Costo ($)', 'Observación'], (d.combustible||[]).map(function(c){ return [c.mes, n(c.litros), n(c.costo), c.observacion]; }), [1,2]),
       tabla('Mantenimiento realizado', ['Fecha', 'Equipo', 'Tipo', 'Trabajo', 'Costo ($)', 'Responsable'], (d.mantenimiento||[]).map(function(m){ return [m.fecha, m.equipo, m.tipo, m.trabajo, n(m.costo), m.responsable]; }), [4])
     ];
     d.tablas = tablas;

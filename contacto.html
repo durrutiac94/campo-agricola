@@ -81,6 +81,10 @@
 <div id="pie-footer"></div>
 
 <script src="data/contactos.js"></script>
+<script src="js/config.js"></script>
+<script src="js/supabase.js"></script>
+<script src="js/manifiesto.js"></script>
+<script src="js/datos.js"></script>
 <script src="js/app.js"></script>
 <script src="js/exportar.js"></script>
 <script src="js/buscador.js"></script>
@@ -89,7 +93,7 @@
   'use strict';
   var C = window.Campo;
   var E = window.CampoExportar;
-  var datos = window.DATOS_CONTACTOS || [];
+  var datos = [];
   var tbody = document.getElementById('tbody-contactos');
   var sel = document.getElementById('filtro-cat');
   var inp = document.getElementById('filtro-buscar-c');
@@ -97,6 +101,7 @@
   var btn = document.getElementById('btn-exp-csv');
 
   function pintar() {
+    datos = window.DATOS_CONTACTOS || [];
     var cat = sel ? sel.value : 'todos';
     var q = inp ? C.norm(inp.value) : '';
     var lista = datos.filter(function (d) {
@@ -126,6 +131,7 @@
   if (inp) inp.addEventListener('input', pintar);
   if (btn && E) {
     btn.addEventListener('click', function () {
+      datos = window.DATOS_CONTACTOS || [];
       var cat = sel ? sel.value : 'todos';
       var q = inp ? C.norm(inp.value) : '';
       var lista = datos.filter(function (d) {
@@ -150,8 +156,8 @@
     });
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', pintar);
+  if (window.CampoDatos) {
+    window.CampoDatos.pintar(pintar);
   } else {
     pintar();
   }

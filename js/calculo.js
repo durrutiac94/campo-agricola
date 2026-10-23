@@ -1378,6 +1378,8 @@
 
     if (!cont) return;
 
+    cont.innerHTML = '';
+
     campoSectoresOriginal = sectoresPorDefecto();
 
     // La calculadora de riego usa la lista de sectores editable
@@ -1398,9 +1400,9 @@
 
   window.CampoCalculo = { iniciar, balanceMensual, MESES };
 
-  if (document.readyState === 'loading') {
+  if (window.CampoDatos) {
 
-    document.addEventListener('DOMContentLoaded', iniciar);
+    window.CampoDatos.pintar(iniciar);
 
   } else {
 
