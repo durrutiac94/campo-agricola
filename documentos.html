@@ -36,10 +36,6 @@
         <span>Sección</span>
         <select id="filtro-seccion">
           <option value="todos">Todas</option>
-          <option value="Avellanos">Avellanos</option>
-          <option value="Ovejas">Ovejas</option>
-          <option value="Riego">Riego</option>
-          <option value="Maquinaria">Maquinaria</option>
         </select>
       </label>
       <label>
@@ -48,7 +44,8 @@
       </label>
     </div>
     <div style="display:flex;gap:.4rem;flex-wrap:wrap;align-items:center">
-      <button type="button" class="btn pequeno" id="btn-nuevo-doc" hidden>Agregar documento</button>
+      <button type="button" class="btn pequeno" id="btn-nuevo-doc" hidden>Agregar PDF</button>
+      <button type="button" class="btn pequeno" id="btn-varios-doc" hidden>Subir varios PDFs</button>
       <div class="contador-resultados" id="contador-docs"></div>
     </div>
   </div>
@@ -84,19 +81,43 @@
   var inp = document.getElementById('filtro-buscar-doc');
   var cnt = document.getElementById('contador-docs');
   var btnNuevo = document.getElementById('btn-nuevo-doc');
+  var btnVarios = document.getElementById('btn-varios-doc');
   var docs = [];
+
+  function categoriaDoc(d) {
+    var seccion = d && d.seccion != null ? String(d.seccion).trim() : '';
+    return seccion || 'General';
+  }
+
+  function actualizarFiltro() {
+    if (!sel) return;
+    var categorias = (window.CAMPO_CATEGORIAS_DOCUMENTOS || []).slice();
+    if (!categorias.length) categorias = ['Avellanos', 'Ovejas', 'Riego', 'Maquinaria', 'General'];
+    docs.forEach(function (d) {
+      var categoria = categoriaDoc(d);
+      if (categorias.indexOf(categoria) === -1) categorias.push(categoria);
+    });
+    var actual = sel.value;
+    sel.innerHTML = '<option value="todos">Todas</option>' + categorias.map(function (c) {
+      return '<option value="' + C.esc(c) + '">' + C.esc(c) + '</option>';
+    }).join('');
+    sel.value = actual === 'todos' || categorias.indexOf(actual) !== -1 ? actual : 'todos';
+  }
 
   function filtrar() {
     docs = window.DATOS_DOCUMENTOS || [];
+    actualizarFiltro();
     var seccion = sel ? sel.value : 'todos';
     var q = inp ? C.norm(inp.value) : '';
     var lista = docs.filter(function (d) {
-      var okSec = (seccion === 'todos') || (d.seccion === seccion);
+      var okSec = (seccion === 'todos') || (categoriaDoc(d) === seccion);
       var okQ = !q || C.norm(d.titulo + ' ' + (d.descripcion||'') + ' ' + (d.tags||[]).join(' ')).indexOf(q) !== -1;
       return okSec && okQ;
     });
     if (cnt) cnt.textContent = lista.length + ' documento' + (lista.length === 1 ? '' : 's');
-    if (btnNuevo) btnNuevo.hidden = !(window.CampoEditor && window.CampoEditor.puedeEditar());
+    var puedeEditar = window.CampoEditor && window.CampoEditor.puedeEditar();
+    if (btnNuevo) btnNuevo.hidden = !puedeEditar;
+    if (btnVarios) btnVarios.hidden = !puedeEditar;
     if (V && V.renderTarjetasDocumentos) V.renderTarjetasDocumentos(cont, lista, { mostrarSeccion: true, origen: { seccion: 'documentos', lista: 'documentos' } });
   }
 
@@ -105,6 +126,11 @@
   if (btnNuevo) {
     btnNuevo.addEventListener('click', function () {
       if (window.CampoEditor) window.CampoEditor.abrirFormulario('documentos', 'documentos');
+    });
+  }
+  if (btnVarios) {
+    btnVarios.addEventListener('click', function () {
+      if (window.CampoEditor) window.CampoEditor.abrirCargaDocumentos('documentos', 'documentos');
     });
   }
   if (window.CampoDatos) {

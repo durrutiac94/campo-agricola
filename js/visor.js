@@ -340,9 +340,9 @@
 
     const meta = C.el('div', 'meta');
 
-    if (opciones.mostrarSeccion && doc.seccion) {
+    if (opciones.mostrarSeccion) {
 
-      meta.appendChild(C.el('span', 'etiqueta', C.esc(doc.seccion)));
+      meta.appendChild(C.el('span', 'etiqueta', C.esc(doc.seccion || 'General')));
 
     }
 

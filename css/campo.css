@@ -201,6 +201,33 @@ html:not(.editor-activo) .col-acciones { display: none; }
 .campo-form input[type="file"] { padding: .35rem; background: var(--superficie-alt); cursor: pointer; }
 .archivo-estado { color: var(--texto-mute); font-size: .8rem; overflow-wrap: anywhere; }
 .archivo-estado.error { color: var(--rojo-600); }
+
+.lote-lista { display: flex; flex-direction: column; gap: .55rem; margin-top: 1rem; }
+.lote-lista:empty { display: none; }
+.lote-fila {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: .8rem;
+  padding: .65rem; border: 1px solid var(--linea-soft); border-radius: 9px;
+  background: var(--superficie-alt);
+}
+.lote-fila.ok { border-color: var(--verde-600); }
+.lote-fila.error { border-color: var(--rojo-600); }
+.lote-datos {
+  display: grid; grid-template-columns: minmax(160px, 2fr) minmax(130px, 1fr);
+  gap: .5rem .75rem; flex: 1; min-width: 0;
+}
+.lote-datos .campo-form { font-size: .86rem; }
+.lote-archivo {
+  grid-column: 1 / -1; color: var(--texto-mute); font-size: .78rem;
+  overflow-wrap: anywhere;
+}
+.lote-acciones {
+  display: flex; flex-direction: column; align-items: flex-end; gap: .4rem; flex-shrink: 0;
+}
+.lote-estado { font-size: .78rem; color: var(--texto-mute); text-align: right; }
+.lote-estado.ok { color: var(--verde-600); }
+.lote-estado.error { color: var(--rojo-600); }
+.lote-estado.subiendo { color: var(--texto-soft); }
+
 .ayuda-dialogo { margin: 0 0 .9rem; color: var(--texto-mute); font-size: .9rem; }
 .error-form {
   margin: .8rem 0 0; padding: .55rem .7rem; border-radius: 7px;
@@ -236,6 +263,12 @@ html.modo-campo .aviso-editor.error { background: #fbe9e9; border-color: #d9a3a3
   .dialogo-editor { width: 96vw; }
   .cab-dialogo h2 { font-size: 1rem; }
   .col-acciones .btn { padding: .35rem .55rem; }
+  .lote-fila { flex-direction: column; }
+  .lote-datos { grid-template-columns: 1fr; width: 100%; }
+  .lote-acciones {
+    flex-direction: row; align-items: center; justify-content: space-between; width: 100%;
+  }
+  .lote-estado { text-align: left; }
 }
 
 @media print {

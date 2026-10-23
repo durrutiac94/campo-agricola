@@ -28,14 +28,24 @@
     }));
   }
 
+  var CATEGORIAS_DOCUMENTOS = ['Avellanos', 'Ovejas', 'Riego', 'Maquinaria', 'General'];
+
+  function opcionesCategoriasDocumentos() {
+    return CATEGORIAS_DOCUMENTOS.map(function (c) {
+      return { valor: c, texto: c };
+    });
+  }
+
   var DOCS = [
     C('titulo', 'Título', 'text', { requerido: true, ancho: 2 }),
     C('archivo', 'Archivo PDF', 'file', { requerido: true, ancho: 2, ayuda: 'Solo PDF, hasta 20 MB. Se guarda en Supabase Storage.' }),
     T('descripcion', 'Descripción'),
     F('fecha', 'Fecha'),
-    C('seccion', 'Sección'),
+    S('seccion', 'Sección', opcionesCategoriasDocumentos, { requerido: true, defecto: 'General' }),
     C('tags', 'Etiquetas', 'tags', { ayuda: 'Separadas por coma.' })
   ];
+
+  window.CAMPO_CATEGORIAS_DOCUMENTOS = CATEGORIAS_DOCUMENTOS.slice();
 
   window.CAMPO_ESQUEMA = {
     listas: {
