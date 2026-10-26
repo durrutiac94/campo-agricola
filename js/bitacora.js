@@ -202,14 +202,14 @@
     panelGastos.appendChild(cabecera('Gastos e ingresos', 'bitacora', 'gastos', 'Agregar movimiento'));
     const introG = document.createElement('p');
     introG.className = 'parrafo-intro';
-    introG.textContent = 'Movimientos registrados por fecha, categoría y proveedor.';
+    introG.textContent = 'Movimientos registrados por fecha, categoría y proveedor. Los gastos con origen Labor se actualizan desde la pestaña Labores.';
     panelGastos.appendChild(introG);
     panelGastos.appendChild(tabla(
       gastos,
-      ['Fecha', 'Tipo', 'Categoría', 'Concepto', 'Monto', 'Forma de pago', 'Proveedor'],
+      ['Fecha', 'Tipo', 'Categoría', 'Concepto', 'Monto', 'Forma de pago', 'Proveedor', 'Origen'],
       'bitacora', 'gastos',
       function (g) {
-        return [g.fecha, g.tipo, g.categoria, g.concepto, formatCLP(g.monto || 0), g.formaPago || '', g.proveedor || ''];
+        return [g.fecha, g.tipo, g.categoria, g.concepto, formatCLP(g.monto || 0), g.formaPago || '', g.proveedor || '', g.origen === 'labor' ? 'Labor' : 'Manual'];
       },
       [4]
     ));

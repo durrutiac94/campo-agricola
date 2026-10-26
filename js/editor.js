@@ -409,7 +409,72 @@
         : (typeof orden === 'number' ? orden : siguienteOrden(seccion, lista)),
       datos: datos
     };
-    return API.guardarRegistro(fila);
+    return API.guardarRegistro(fila).then(function (respuesta) {
+      return { id: fila.id, fila: fila, respuesta: respuesta };
+    });
+  }
+
+  /* -------------------------------------------------- Gasto desde labor -- */
+
+  function gastosDeLabor(laborId) {
+    return (window.DATOS_GASTOS || []).filter(function (g) {
+      return g && g.origen === 'labor' && g.origenId === laborId;
+    });
+  }
+
+  function datosGastoDeLabor(laborId, valores) {
+    var fecha = String(valores.fecha || '');
+    var mes = /^\d{4}-\d{2}/.test(fecha) ? Number(fecha.slice(5, 7)) - 1 : 0;
+    return {
+      fecha: fecha,
+      mes: mes,
+      tipo: 'gasto',
+      categoria: valores.categoria || 'otro',
+      concepto: valores.labor || 'Labor',
+      monto: Number(valores.costo) || 0,
+      formaPago: '',
+      proveedor: '',
+      origen: 'labor',
+      origenId: laborId
+    };
+  }
+
+  function sincronizarGastoLabor(item, valores, laborId) {
+    var vinculados = gastosDeLabor(laborId);
+    var monto = Number(valores.costo) || 0;
+    var datos = datosGastoDeLabor(laborId, valores);
+
+    if (!monto) {
+      return Promise.all(vinculados.map(function (g) {
+        return API.borrarRegistro(g._id);
+      }));
+    }
+
+    if (vinculados.length) {
+      var actual = vinculados[0];
+      var actualizados = Object.assign({}, clon(actual), datos);
+      delete actualizados._id;
+      delete actualizados._orden;
+      var tareas = [API.guardarRegistro({
+        id: actual._id,
+        seccion: 'bitacora',
+        lista: 'gastos',
+        orden: typeof actual._orden === 'number' ? actual._orden : siguienteOrden('bitacora', 'gastos'),
+        datos: actualizados
+      })];
+      vinculados.slice(1).forEach(function (extra) {
+        tareas.push(API.borrarRegistro(extra._id));
+      });
+      return Promise.all(tareas);
+    }
+
+    return API.guardarRegistro({
+      id: uuid(),
+      seccion: 'bitacora',
+      lista: 'gastos',
+      orden: siguienteOrden('bitacora', 'gastos'),
+      datos: datos
+    });
   }
 
   /* --------------------------------------------------------- Formularios -- */
@@ -455,6 +520,8 @@
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var valores = leerFormulario(form, def.campos);
+      var esLabor = seccion === 'bitacora' && lista === 'labores';
+      if (esLabor && !item) valores.sincronizaGasto = true;
       var archivo = archivoDeFormulario(form);
       var error = d.querySelector('.error-form');
       var problemaArchivo = errorArchivo(archivo);
@@ -478,6 +545,7 @@
       var boton = form.querySelector('[type="submit"]');
       var rutaAnterior = rutaDeArchivo(item) || valores.ruta || '';
       var subida = null;
+      var avisoGasto = '';
       boton.disabled = true;
       boton.textContent = archivo ? 'Subiendo PDF...' : 'Guardando...';
       var tarea = Promise.resolve();
@@ -493,6 +561,13 @@
       }
       tarea.then(function () {
         return guardarFila(seccion, lista, item, valores);
+      }).then(function (resultado) {
+        if (esLabor && (!item || item.sincronizaGasto)) {
+          return sincronizarGastoLabor(item, valores, resultado.id).catch(function (err) {
+            if (esErrorSesion(err)) throw err;
+            avisoGasto = 'Labor guardada, pero no se pudo actualizar Gastos.';
+          });
+        }
       }).then(function () {
         if (subida && rutaAnterior && rutaAnterior !== subida.ruta) {
           API.borrarPDF(rutaAnterior).catch(function () {
@@ -500,7 +575,7 @@
           });
         }
         cerrar();
-        toast('Guardado');
+        toast(avisoGasto || 'Guardado', avisoGasto ? 'error' : 'ok');
         recargar();
       }).catch(function (err) {
         if (subida) API.borrarPDF(subida.ruta).catch(function () {});
@@ -881,19 +956,27 @@
     var nombre = item.titulo || item.nombre || item.empresa || item.labor || item.concepto || 'este registro';
     var extra = '';
     var rutaPDF = rutaDeArchivo(item);
+    var esLabor = seccion === 'bitacora' && lista === 'labores';
+    var gastos = esLabor && item.sincronizaGasto ? gastosDeLabor(item._id) : [];
     if (rutaPDF) extra += ' También se borrará el PDF.';
+    if (gastos.length) extra += ' También se borrará el gasto asociado.';
     if (seccion === 'calendario' && lista === 'categorias') {
       var usos = (window.DATOS_CALENDARIO && window.DATOS_CALENDARIO.eventos ? window.DATOS_CALENDARIO.eventos : []).filter(function (e) { return e.categoria === item.id; }).length;
       if (usos) extra = ' Hay ' + usos + ' evento' + (usos === 1 ? '' : 's') + ' con esta categoría: quedarán sin categoría.';
     }
     if (!window.confirm('¿Borrar ' + nombre + '?' + extra)) return;
     API.borrarRegistro(item._id).then(function () {
-      var avisoPDF = '';
+      var avisos = '';
       var limpieza = rutaPDF
-        ? API.borrarPDF(rutaPDF).catch(function () { avisoPDF = ' El PDF no se pudo borrar.'; })
+        ? API.borrarPDF(rutaPDF).catch(function () { avisos += ' El PDF no se pudo borrar.'; })
         : Promise.resolve();
-      return limpieza.then(function () {
-        toast('Borrado' + avisoPDF, avisoPDF ? 'error' : 'ok');
+      var limpiezaGastos = Promise.all(gastos.map(function (g) {
+        return API.borrarRegistro(g._id).catch(function () {
+          avisos += ' El gasto asociado no se pudo borrar.';
+        });
+      }));
+      return Promise.all([limpieza, limpiezaGastos]).then(function () {
+        toast('Borrado' + avisos, avisos ? 'error' : 'ok');
         return recargar();
       });
     }).catch(function (err) {
@@ -973,6 +1056,18 @@
 
   function accionesFila(seccion, lista, item) {
     if (!puedeEditar()) return null;
+    if (seccion === 'bitacora' && lista === 'gastos' && item && item.origen === 'labor') {
+      var labor = (window.DATOS_LABORES || []).filter(function (l) {
+        return l && l._id === item.origenId;
+      })[0];
+      if (!labor) return null;
+      var cajaLabor = document.createElement('div');
+      cajaLabor.className = 'acciones-editor';
+      cajaLabor.appendChild(boton('Editar labor', 'btn secundario mini', function () {
+        abrirFormulario('bitacora', 'labores', labor);
+      }));
+      return cajaLabor;
+    }
     var caja = document.createElement('div');
     caja.className = 'acciones-editor';
     caja.appendChild(boton('Editar', 'btn secundario mini', function () { abrirFormulario(seccion, lista, item); }));
