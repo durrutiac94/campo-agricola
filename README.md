@@ -53,6 +53,7 @@ Las cuentas se crean desde el panel de Supabase (Authentication → Users). No h
 - Contenido en Supabase: lectura pública y edición con cuenta (RLS configurado en `supabase/esquema.sql`).
 - Los datos se muestran desde la copia local del dispositivo y luego se refrescan desde la nube.
 - Editor disponible en todas las secciones, el calendario, las bitácoras, los contactos y los documentos.
+- Portada: tabla de bitácora reciente con las últimas 8 labores. La categoría enlaza a `bitacora.html` filtrada y las labores se pueden agregar, editar o borrar con sesión.
 - Documentos PDF: se suben desde el editor a Supabase Storage (bucket público `documentos`, solo PDF, máximo 20 MB). Cualquiera con el enlace puede leerlos.
 - Carga por lotes: hasta 20 PDFs a la vez, con categoría común ajustable por archivo, título editable, fecha y etiquetas comunes. Las categorías son `Avellanos`, `Ovejas`, `Riego`, `Maquinaria` y `General`; los documentos antiguos sin categoría se muestran como `General`.
 - La sección Mapa queda como fase extra al final (mapa QGIS estático e interactivo).

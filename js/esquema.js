@@ -36,6 +36,20 @@
     });
   }
 
+  var CATEGORIAS_LABORES = [
+    { id: 'avellanos', nombre: 'Avellanos' },
+    { id: 'ovejas', nombre: 'Ovejas' },
+    { id: 'riego', nombre: 'Riego' },
+    { id: 'maquinaria', nombre: 'Maquinaria' },
+    { id: 'otro', nombre: 'Otro' }
+  ];
+
+  function opcionesCategoriasLabores() {
+    return CATEGORIAS_LABORES.map(function (c) {
+      return { valor: c.id, texto: c.nombre };
+    });
+  }
+
   var DOCS = [
     C('titulo', 'Título', 'text', { requerido: true, ancho: 2 }),
     C('archivo', 'Archivo PDF', 'file', { requerido: true, ancho: 2, ayuda: 'Solo PDF, hasta 20 MB. Se guarda en Supabase Storage.' }),
@@ -182,7 +196,7 @@
       /* ----------------------------------------------------------- Bitácora */
       'bitacora/labores': {
         titulo: 'Labor realizada',
-        campos: [F('fecha', 'Fecha', { requerido: true }), C('categoria', 'Categoría'), C('labor', 'Labor', 'text', { requerido: true }), C('sector', 'Sector'), N('hectareas', 'Hectáreas', { paso: 0.1 }), N('horas', 'Horas', { paso: 0.1 }), N('personas', 'Personas'), N('costo', 'Costo ($)'), T('observacion', 'Observación')]
+        campos: [F('fecha', 'Fecha', { requerido: true }), S('categoria', 'Categoría', opcionesCategoriasLabores), C('labor', 'Labor', 'text', { requerido: true }), C('sector', 'Sector'), N('hectareas', 'Hectáreas', { paso: 0.1 }), N('horas', 'Horas', { paso: 0.1 }), N('personas', 'Personas'), N('costo', 'Costo ($)'), T('observacion', 'Observación')]
       },
       'bitacora/gastos': {
         titulo: 'Movimiento de gastos',

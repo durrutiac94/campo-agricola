@@ -18,56 +18,26 @@
 </header>
 
 <main class="contenedor">
-  <header class="pagina-cabecera">
-    <h1>Campo El Avellano</h1>
-    <p class="intro" id="descripcion-campo">
-      Predio avellano-ganadero en la zona sur de Chile, con avellano europeo, ovinos de pastoreo y riego por goteo.
-    </p>
-  </header>
+  <h1 class="solo-lectores">Campo El Avellano</h1>
 
   <section class="seccion">
-    <h2>Resumen</h2>
-    <div class="kpis" id="kpis-portada"></div>
-  </section>
-
-  <section class="seccion">
-    <h2>Accesos rápidos</h2>
-    <div class="doc-grid">
-      <article class="doc-card">
-        <div class="tipo"><span class="ext">CAM</span> Campo</div>
-        <h3><a href="avellanos.html">Avellanos</a></h3>
-        <p class="desc">Variedades, labores, plagas y producción del huerto.</p>
-      </article>
-      <article class="doc-card">
-        <div class="tipo"><span class="ext">OVE</span> Ganado</div>
-        <h3><a href="ovejas.html">Ovejas</a></h3>
-        <p class="desc">rebaño, reproducción, sanitario y pastoreo.</p>
-      </article>
-      <article class="doc-card">
-        <div class="tipo"><span class="ext">RIE</span> Agua</div>
-        <h3><a href="riego.html">Riego</a></h3>
-        <p class="desc">Sistema de goteo, sectores, balance hídrico y mantención.</p>
-      </article>
-      <article class="doc-card">
-        <div class="tipo"><span class="ext">MAQ</span> Máquinas</div>
-        <h3><a href="maquinaria.html">Maquinaria</a></h3>
-        <p class="desc">Tractor, implementos, combustible y mantención.</p>
-      </article>
-      <article class="doc-card">
-        <div class="tipo"><span class="ext">MAP</span> Plano</div>
-        <h3><a href="mapa.html">Mapa del campo</a></h3>
-        <p class="desc">Distribución de parcelas, potrero, galpones y agua.</p>
-      </article>
-      <article class="doc-card">
-        <div class="tipo"><span class="ext">HER</span> Herramientas</div>
-        <h3><a href="calculadoras.html">Calculadoras</a></h3>
-        <p class="desc">Riego, costo por kg, cosecha y carga animal.</p>
-      </article>
+    <div class="cab-seccion">
+      <h2>Bitácora reciente</h2>
+      <div class="cab-acciones" id="acciones-bitacora-portada">
+        <a class="btn secundario pequeno" href="bitacora.html#labores">Ver bitácora completa</a>
+      </div>
     </div>
+    <p class="parrafo-intro">
+      Últimos registros de labores. La categoría abre la bitácora filtrada.
+    </p>
+    <div id="bitacora-portada"></div>
   </section>
 
   <section class="seccion">
-    <h2>Calendario próximos hitos</h2>
+    <div class="cab-seccion">
+      <h2>Calendario próximos hitos</h2>
+      <div class="cab-acciones" id="acciones-hitos"></div>
+    </div>
     <div id="hitos-portada"></div>
   </section>
 </main>
@@ -75,6 +45,7 @@
 
 <script src="data/campo.js"></script>
 <script src="data/calendario.js"></script>
+<script src="data/labores.js"></script>
 <script src="js/config.js"></script>
 <script src="js/supabase.js"></script>
 <script src="js/manifiesto.js"></script>
@@ -86,76 +57,173 @@
 (function () {
   'use strict';
   var C = window.Campo;
+  var LIMITE = 8;
+  var CATEGORIAS = {
+    avellanos: 'Avellanos',
+    ovejas: 'Ovejas',
+    riego: 'Riego',
+    maquinaria: 'Maquinaria',
+    otro: 'Otro'
+  };
+
+  function clp(valor) {
+    var n = Number(valor) || 0;
+    try {
+      return new Intl.NumberFormat('es-CL', {
+        style: 'currency',
+        currency: 'CLP',
+        maximumFractionDigits: 0
+      }).format(n);
+    } catch (e) {
+      return '$ ' + n;
+    }
+  }
+
+  function etiquetaCategoria(categoria) {
+    var clave = C.norm(categoria);
+    if (CATEGORIAS[clave]) return CATEGORIAS[clave];
+    return categoria ? String(categoria) : 'General';
+  }
+
+  function urlCategoria(categoria) {
+    return 'bitacora.html?categoria=' + encodeURIComponent(C.norm(categoria)) + '#labores';
+  }
+
+  function agregarCelda(tr, etiqueta, texto, clase) {
+    var td = document.createElement('td');
+    td.dataset.label = etiqueta;
+    if (clase) td.className = clase;
+    td.textContent = texto == null ? '' : texto;
+    tr.appendChild(td);
+    return td;
+  }
+
+  function pintarBitacora() {
+    var cont = document.getElementById('bitacora-portada');
+    if (!cont) return;
+    cont.innerHTML = '';
+
+    var labores = (window.DATOS_LABORES || []).slice().sort(function (a, b) {
+      return String(b.fecha || '').localeCompare(String(a.fecha || ''));
+    }).slice(0, LIMITE);
+
+    if (!labores.length) {
+      cont.appendChild(C.el('div', 'vacio', 'Todavía no hay labores registradas.'));
+      return;
+    }
+
+    var env = document.createElement('div');
+    env.className = 'tabla-envoltura';
+    var t = document.createElement('table');
+    t.className = 'tabla responsive';
+
+    var thead = document.createElement('thead');
+    var trh = document.createElement('tr');
+    ['Tarea', 'Fecha', 'Categoría', 'Notas', 'Costo'].forEach(function (col) {
+      var th = document.createElement('th');
+      th.scope = 'col';
+      th.textContent = col;
+      trh.appendChild(th);
+    });
+    if (window.CampoEditor && window.CampoEditor.puedeEditar()) {
+      var thAcc = document.createElement('th');
+      thAcc.scope = 'col';
+      thAcc.className = 'col-acciones';
+      thAcc.textContent = 'Acciones';
+      trh.appendChild(thAcc);
+    }
+    thead.appendChild(trh);
+    t.appendChild(thead);
+
+    var tbody = document.createElement('tbody');
+    labores.forEach(function (labor) {
+      var tr = document.createElement('tr');
+      agregarCelda(tr, 'Tarea', labor.labor || '');
+      agregarCelda(tr, 'Fecha', C.fecha ? C.fecha(labor.fecha) : (labor.fecha || ''));
+
+      var tdCat = document.createElement('td');
+      tdCat.dataset.label = 'Categoría';
+      var clave = C.norm(labor.categoria);
+      if (CATEGORIAS[clave]) {
+        var enlace = document.createElement('a');
+        enlace.href = urlCategoria(labor.categoria);
+        enlace.textContent = CATEGORIAS[clave];
+        tdCat.appendChild(enlace);
+      } else {
+        tdCat.textContent = etiquetaCategoria(labor.categoria);
+      }
+      tr.appendChild(tdCat);
+
+      agregarCelda(tr, 'Notas', labor.observacion || '');
+      agregarCelda(tr, 'Costo', clp(labor.costo), 'num');
+
+      if (window.CampoEditor && window.CampoEditor.puedeEditar()) {
+        var tdAcc = document.createElement('td');
+        tdAcc.className = 'col-acciones';
+        tdAcc.dataset.label = 'Acciones';
+        var acciones = window.CampoEditor.accionesFila('bitacora', 'labores', labor);
+        if (acciones) tdAcc.appendChild(acciones);
+        tr.appendChild(tdAcc);
+      }
+      tbody.appendChild(tr);
+    });
+    t.appendChild(tbody);
+    env.appendChild(t);
+    cont.appendChild(env);
+  }
+
+  function pintarHitos() {
+    var cont = document.getElementById('hitos-portada');
+    if (!cont) return;
+    cont.innerHTML = '';
+
+    var datos = window.DATOS_CAMPO || {};
+    var hitos = (datos.hitos || []).slice().sort(function (a, b) {
+      return String(a.fecha).localeCompare(String(b.fecha));
+    }).slice(0, 6);
+
+    if (!hitos.length) {
+      cont.appendChild(C.el('div', 'vacio', 'No hay hitos próximos registrados.'));
+      return;
+    }
+
+    var tabla = document.createElement('div');
+    tabla.className = 'tabla-envoltura';
+    var t = document.createElement('table');
+    t.className = 'tabla responsive';
+    t.innerHTML = '<thead><tr><th>Fecha</th><th>Tarea</th><th>Tipo</th></tr></thead><tbody></tbody>';
+    var tbody = t.querySelector('tbody');
+    hitos.forEach(function (h) {
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td data-label="Fecha">' + C.esc(C.fecha ? C.fecha(h.fecha) : h.fecha) + '</td>' +
+        '<td data-label="Tarea">' + C.esc(h.titulo) + '</td>' +
+        '<td data-label="Tipo"><span class="etiqueta">' + C.esc(h.tipo) + '</span></td>';
+      tbody.appendChild(tr);
+    });
+    tabla.appendChild(t);
+    cont.appendChild(tabla);
+  }
+
+  function pintarAcciones() {
+    var bitacora = document.getElementById('acciones-bitacora-portada');
+    var hitos = document.getElementById('acciones-hitos');
+
+    [bitacora, hitos].forEach(function (caja) {
+      if (!caja) return;
+      caja.querySelectorAll('.btn-agregar').forEach(function (boton) {
+        boton.remove();
+      });
+    });
+
+    if (!window.CampoEditor || !window.CampoEditor.puedeEditar()) return;
+    if (bitacora) window.CampoEditor.agregarBoton('bitacora', 'labores', 'Agregar labor', bitacora);
+    if (hitos) window.CampoEditor.agregarBoton('campo', 'hitos', 'Agregar hito', hitos);
+  }
 
   function pintar() {
-    var datos = window.DATOS_CAMPO || {};
-    var desc = document.getElementById('descripcion-campo');
-    if (desc) desc.textContent = datos.descripcion || '';
-
-    var kpisCont = document.getElementById('kpis-portada');
-    if (kpisCont) {
-      kpisCont.innerHTML = '';
-      if (datos.kpis && datos.kpis.length) {
-        var grilla = document.createElement('div');
-        grilla.className = 'kpis';
-        datos.kpis.forEach(function (s) {
-          var k = document.createElement('div');
-          k.className = 'kpi';
-          k.innerHTML = '<div class="valor">' + C.esc(s.valor) +
-            (s.unidad ? '<span class="unidad">' + C.esc(s.unidad) + '</span>' : '') +
-            '</div><div class="etiqueta">' + C.esc(s.etiqueta) + '</div>';
-          grilla.appendChild(k);
-        });
-        kpisCont.appendChild(grilla);
-      }
-    }
-
-    var hitosCont = document.getElementById('hitos-portada');
-    if (hitosCont) {
-      hitosCont.innerHTML = '';
-      var hitos = (datos.hitos || []).slice().sort(function (a, b) {
-        return String(a.fecha).localeCompare(String(b.fecha));
-      }).slice(0, 6);
-      if (hitos.length) {
-        var tabla = document.createElement('div');
-        tabla.className = 'tabla-envoltura';
-        var t = document.createElement('table');
-        t.className = 'tabla responsive';
-        t.innerHTML = '<thead><tr><th>Fecha</th><th>Tarea</th><th>Tipo</th></tr></thead><tbody></tbody>';
-        var tbody = t.querySelector('tbody');
-        hitos.forEach(function (h) {
-          var tr = document.createElement('tr');
-          tr.innerHTML = '<td data-label="Fecha">' + C.esc(C.fecha ? C.fecha(h.fecha) : h.fecha) + '</td>' +
-            '<td data-label="Tarea">' + C.esc(h.titulo) + '</td>' +
-            '<td data-label="Tipo"><span class="etiqueta">' + C.esc(h.tipo) + '</span></td>';
-          tbody.appendChild(tr);
-        });
-        tabla.appendChild(t);
-        hitosCont.appendChild(tabla);
-      }
-    }
-    if (window.CampoEditor) {
-      var cab = document.querySelector('.pagina-cabecera');
-      var vieja = document.getElementById('barra-editor-portada');
-      if (vieja) vieja.remove();
-      if (cab && window.CampoEditor.puedeEditar()) {
-        var barra = document.createElement('div');
-        barra.id = 'barra-editor-portada';
-        barra.className = 'barra-editor';
-        [['Editar portada', function () { window.CampoEditor.editarAjustes('campo'); }],
-         ['Indicadores', function () { window.CampoEditor.administrarLista('campo', 'kpis', 'Indicadores de portada'); }],
-         ['Hitos', function () { window.CampoEditor.administrarLista('campo', 'hitos', 'Hitos del año'); }]
-        ].forEach(function (par) {
-          var b = document.createElement('button');
-          b.type = 'button';
-          b.className = 'btn secundario pequeno';
-          b.textContent = par[0];
-          b.addEventListener('click', par[1]);
-          barra.appendChild(b);
-        });
-        cab.appendChild(barra);
-      }
-    }
+    pintarBitacora();
+    pintarHitos();
+    pintarAcciones();
   }
 
   if (window.CampoDatos) {

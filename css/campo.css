@@ -137,6 +137,8 @@ html.modo-campo .btn.peligro:hover { background: #fbe9e9; color: #7a1515; border
   gap: .75rem; flex-wrap: wrap; margin-bottom: .6rem;
 }
 .cab-seccion h2 { margin: 0; }
+.cab-acciones { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
+.filtros-categoria { margin: .2rem 0 .9rem; }
 .barra-editor {
   display: flex; gap: .45rem; flex-wrap: wrap; align-items: center;
   margin: .2rem 0 1rem;
