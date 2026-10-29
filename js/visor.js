@@ -646,7 +646,9 @@
 
       if (ed && ed.puedeEditar()) {
 
-        ed.agregarBoton(datos.clave, 'documentos', 'Agregar documento', cab);
+        ed.agregarBoton('documentos', 'documentos', 'Agregar documento', cab, {
+          seccion: datos.categoriaDocumento || 'General'
+        });
 
       }
 
@@ -654,7 +656,9 @@
 
       const cont = C.el('div');
 
-      renderTarjetasDocumentos(cont, datos.documentos || [], { origen: { seccion: datos.clave, lista: 'documentos' } });
+      renderTarjetasDocumentos(cont, datos.documentos || [], {
+        origen: { seccion: 'documentos', lista: 'documentos' }
+      });
 
       sec.appendChild(cont);
 
@@ -681,4 +685,3 @@
   };
 
 })();
-

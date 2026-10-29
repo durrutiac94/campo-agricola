@@ -479,12 +479,12 @@
 
   /* --------------------------------------------------------- Formularios -- */
 
-  function abrirFormulario(seccion, lista, item) {
+  function abrirFormulario(seccion, lista, item, valoresIniciales) {
     if (!puedeEditar()) { abrirLogin(); return; }
     var def = ESQUEMA.listas[seccion + '/' + lista];
     if (!def) { toast('Esta lista todavía no tiene formulario.', 'error'); return; }
 
-    var base = item ? clon(item) : {};
+    var base = item ? clon(item) : clon(valoresIniciales || {});
     var d = nuevoDialogo();
     d.innerHTML =
       '<form class="form-editor" novalidate>' +
@@ -1075,9 +1075,11 @@
     return caja;
   }
 
-  function agregarBoton(seccion, lista, texto, contenedor) {
+  function agregarBoton(seccion, lista, texto, contenedor, valoresIniciales) {
     if (!puedeEditar() || !contenedor) return null;
-    var b = boton('+ ' + texto, 'btn pequeno btn-agregar', function () { abrirFormulario(seccion, lista); });
+    var b = boton('+ ' + texto, 'btn pequeno btn-agregar', function () {
+      abrirFormulario(seccion, lista, null, valoresIniciales);
+    });
     b.dataset.editorOnly = '1';
     contenedor.appendChild(b);
     return b;

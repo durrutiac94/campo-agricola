@@ -19,6 +19,26 @@
     return { seccion: seccion, lista: lista, items: items || [] };
   }
 
+  function documentosDe(categoria, anteriores) {
+    var docs = [];
+    var vistos = Object.create(null);
+    function agregar(doc) {
+      if (!doc) return;
+      var clave = doc._id || doc.archivo || doc.ruta;
+      if (clave && vistos[clave]) return;
+      if (clave) vistos[clave] = true;
+      docs.push(doc);
+    }
+
+    (anteriores || []).forEach(agregar);
+    (window.DATOS_DOCUMENTOS || []).forEach(function (doc) {
+      if (String(doc.seccion || '').trim().toLowerCase() === categoria.toLowerCase()) {
+        agregar(doc);
+      }
+    });
+    return docs;
+  }
+
   function avellanos() {
     const d = window.DATOS_AVELLANOS;
     if (!d) return null;
@@ -54,7 +74,8 @@
     d.tablas = tablas;
     return {
       clave: 'avellanos', titulo: 'Avellanos', resumen: d.introduccion,
-      stats: stats, tablas: tablas, documentos: d.documentos || [], avisos: [],
+      stats: stats, tablas: tablas, documentos: documentosDe('Avellanos', d.documentos),
+      categoriaDocumento: 'Avellanos', avisos: [],
       editorAjustes: 'avellanos'
     };
   }
@@ -97,7 +118,8 @@
     d.tablas = tablas;
     return {
       clave: 'ovejas', titulo: 'Ovejas', resumen: d.introduccion,
-      stats: stats, tablas: tablas, documentos: d.documentos || [], avisos: [],
+      stats: stats, tablas: tablas, documentos: documentosDe('Ovejas', d.documentos),
+      categoriaDocumento: 'Ovejas', avisos: [],
       editorAjustes: 'ovejas'
     };
   }
@@ -139,7 +161,8 @@
     d.tablas = tablas;
     return {
       clave: 'riego', titulo: 'Riego', resumen: d.sistema + '. ' + d.fuente + '.',
-      stats: stats, tablas: tablas, documentos: [], avisos: [],
+      stats: stats, tablas: tablas, documentos: documentosDe('Riego', []),
+      categoriaDocumento: 'Riego', avisos: [],
       editorAjustes: 'riego'
     };
   }
@@ -182,7 +205,8 @@
     d.tablas = tablas;
     return {
       clave: 'maquinaria', titulo: 'Maquinaria', resumen: d.introduccion,
-      stats: stats, tablas: tablas, documentos: d.documentos || [], avisos: [],
+      stats: stats, tablas: tablas, documentos: documentosDe('Maquinaria', d.documentos),
+      categoriaDocumento: 'Maquinaria', avisos: [],
       editorAjustes: 'maquinaria'
     };
   }
